@@ -6,6 +6,8 @@ import publishRouter from "./publish";
 import feedsRouter from "./feeds";
 import opslogRouter from "./opslog";
 import ingestRouter from "./ingest";
+import fileIngestRouter from "./fileIngest";
+import sourcesRouter from "./sources";
 
 const router: IRouter = Router();
 
@@ -16,5 +18,7 @@ router.use(publishRouter);
 router.use(feedsRouter);
 router.use(opslogRouter);
 router.use(ingestRouter);
+router.use(fileIngestRouter);
+router.use(sourcesRouter);
 
 export default router;

@@ -1,101 +1,82 @@
 import { Router, type IRouter } from "express";
 import crypto from "crypto";
 import { fetchFeed } from "../lib/rssParser";
-import { readSignals, writeSignals, appendOpsLogEntry } from "../lib/fileStore";
+import { getRssSources } from "../lib/sourcesConfig";
+import { appendOpsLogEntry } from "../lib/fileStore";
 
 const router: IRouter = Router();
 
-const RSS_FEEDS = [
-  {
-    url: "https://www.reuters.com/rssFeed/worldNews",
-    source: "Reuters",
-    limit: 5,
-  },
-  {
-    url: "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
-    source: "NYT",
-    limit: 5,
-  },
-];
+router.get("/ingest/rss", async (req, res): Promise<void> => {
+  const sourcesParam = typeof req.query.sources === "string" ? req.query.sources : "";
+  const requestedIds = sourcesParam
+    ? sourcesParam.split(",").map((s) => s.trim()).filter(Boolean)
+    : [];
 
-router.get("/ingest", async (req, res): Promise<void> => {
-  req.log.info("RSS ingest started");
+  const rssSources = getRssSources(requestedIds.length > 0 ? requestedIds : undefined);
+
+  req.log.info({ count: rssSources.length }, "RSS ingest started");
 
   appendOpsLogEntry({
     id: `log-${crypto.randomBytes(4).toString("hex")}`,
     timestamp: new Date().toISOString(),
-    message: "RSS ingest started — fetching Reuters and NYT feeds",
+    message: `RSS ingest started — ${rssSources.map((s) => s.name).join(", ")}`,
     level: "info",
   });
 
-  // Fetch all feeds in parallel
-  const feedResults = await Promise.all(RSS_FEEDS.map((f) => fetchFeed(f)));
+  const feedResults = await Promise.all(
+    rssSources.map((src) =>
+      fetchFeed({ url: src.url!, source: src.name, limit: 5 }).then((items) => ({ source: src, items }))
+    )
+  );
 
-  // Build current signal list to determine next ID
-  const existingSignals = readSignals() as Array<{ id: string }>;
-  let nextId = existingSignals.length + 1;
+  let candidateIndex = 1;
+  const candidates: object[] = [];
 
-  const newSignals: object[] = [];
-
-  for (let feedIdx = 0; feedIdx < feedResults.length; feedIdx++) {
-    const items = feedResults[feedIdx];
-    const feedConfig = RSS_FEEDS[feedIdx];
-
+  for (const { source, items } of feedResults) {
     for (const item of items) {
       if (!item.title) continue;
 
-      const signalId = `SG-${String(nextId).padStart(4, "0")}`;
-      nextId++;
+      const candidateId = `C-${crypto.randomBytes(3).toString("hex").toUpperCase()}`;
+      candidateIndex++;
 
-      const confidence = Math.floor(60 + Math.random() * 21); // 60–80
+      const confidence = Math.floor(60 + Math.random() * 21);
 
-      const signal = {
-        id: signalId,
+      candidates.push({
+        id: candidateId,
         title: item.title.slice(0, 120),
         classification: "WATCH",
-        source: feedConfig.source,
+        source: source.name,
+        sourceType: "News",
         summary: item.description
           ? item.description.slice(0, 400)
-          : `Signal ingested from ${feedConfig.source} RSS feed.`,
-        whyItMatters: `Live signal from ${feedConfig.source} — requires review and classification by analyst.`,
+          : `Live signal from ${source.name}.`,
+        whyItMatters: `Live signal from ${source.name} — requires review and classification.`,
         confidence,
-        tags: [feedConfig.source.toUpperCase(), "RSS", "LIVE"],
+        tags: ["NEWS", "RSS", "LIVE"],
         entities: [],
         systemImpact: ["Monitoring"],
         engine: "INGEST",
+        status: "pulled",
+        rawText: item.description ? `${item.title}. ${item.description}` : item.title,
         timestamp: item.pubDate
           ? new Date(item.pubDate).toISOString()
           : new Date().toISOString(),
-      };
+      });
 
-      newSignals.push(signal);
+      void candidateIndex;
     }
   }
 
-  if (newSignals.length > 0) {
-    // Prepend new signals, avoiding duplicates by title
-    const existingTitles = new Set(
-      (existingSignals as Array<{ title: string }>).map((s) => s.title),
-    );
-    const deduped = newSignals.filter(
-      (s) => !existingTitles.has((s as { title: string }).title),
-    );
-
-    if (deduped.length > 0) {
-      writeSignals([...deduped, ...existingSignals]);
-    }
-
-    req.log.info({ total: newSignals.length, saved: deduped.length }, "RSS ingest complete");
-  }
+  req.log.info({ count: candidates.length }, "RSS ingest complete");
 
   appendOpsLogEntry({
     id: `log-${crypto.randomBytes(4).toString("hex")}`,
     timestamp: new Date().toISOString(),
-    message: `RSS ingest complete — ${newSignals.length} signals pulled (Reuters + NYT)`,
+    message: `RSS ingest complete — ${candidates.length} candidates returned for queue`,
     level: "info",
   });
 
-  res.json(newSignals);
+  res.json(candidates);
 });
 
 export default router;

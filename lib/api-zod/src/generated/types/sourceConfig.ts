@@ -5,13 +5,14 @@
  * RSR Data Hub API specification
  * OpenAPI spec version: 0.1.0
  */
-import type { FeedStatus } from "./feedStatus";
+import type { SourceConfigStatus } from "./sourceConfigStatus";
 
-export interface Feed {
+export interface SourceConfig {
   id: string;
   name: string;
-  status: FeedStatus;
+  sourceType: string;
+  category: string;
+  status: SourceConfigStatus;
   description: string;
-  sourceType?: string;
-  category?: string;
+  url?: string;
 }

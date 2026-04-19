@@ -6,11 +6,12 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type FeedStatus = (typeof FeedStatus)[keyof typeof FeedStatus];
+export type SourceConfigStatus =
+  (typeof SourceConfigStatus)[keyof typeof SourceConfigStatus];
 
-export const FeedStatus = {
+export const SourceConfigStatus = {
   active: "active",
   indexing: "indexing",
-  inactive: "inactive",
   placeholder: "placeholder",
+  inactive: "inactive",
 } as const;

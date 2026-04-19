@@ -20,6 +20,8 @@ tags:
     description: Operations log
   - name: publish
     description: Publishing
+  - name: ingest
+    description: Data ingestion
 
 paths:
   /healthz:
@@ -56,12 +58,19 @@ paths:
               schema:
                 $ref: "#/components/schemas/Signal"
 
-  /ingest:
+  /ingest/rss:
     get:
-      operationId: ingestSignals
-      tags: [signals]
+      operationId: ingestRss
+      tags: [ingest]
       summary: Pull live signals from RSS feeds
-      description: Fetches Reuters and NYT RSS feeds, converts items to signals, saves and returns them
+      description: Fetches configured RSS feeds and returns signal candidates
+      parameters:
+        - name: sources
+          in: query
+          required: false
+          description: Comma-separated source IDs to fetch (defaults to all active)
+          schema:
+            type: string
       responses:
         "200":
           description: Ingested signals
@@ -71,6 +80,44 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Signal"
+
+  /ingest/file:
+    post:
+      operationId: ingestFile
+      tags: [ingest]
+      summary: Ingest a file (CSV, JSON, TXT)
+      description: Parses uploaded file content into signal candidates
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IngestFileRequest"
+      responses:
+        "200":
+          description: Parsed signal candidates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Signal"
+
+  /sources:
+    get:
+      operationId: listSources
+      tags: [ingest]
+      summary: List all configured source lanes
+      description: Returns all configured source classes (active, placeholder, inactive)
+      responses:
+        "200":
+          description: Source list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SourceConfig"
 
   /signals:
     get:
@@ -215,6 +262,9 @@ components:
           enum: [CRITICAL, ELEVATED, ROUTINE, WATCH]
         source:
           type: string
+        sourceType:
+          type: string
+          enum: [News, Social, Document, Contract, Dataset, Filing, Market, Manual]
         summary:
           type: string
         whyItMatters:
@@ -237,6 +287,11 @@ components:
           type: string
         timestamp:
           type: string
+        status:
+          type: string
+          enum: [pulled, uploaded, analyzed, saved, published]
+        rawText:
+          type: string
       required:
         - id
         - title
@@ -250,6 +305,50 @@ components:
         - systemImpact
         - engine
         - timestamp
+
+    IngestFileRequest:
+      type: object
+      properties:
+        content:
+          type: string
+          description: Raw file content (text, CSV, or JSON as string)
+        fileName:
+          type: string
+        fileType:
+          type: string
+          enum: [csv, json, txt]
+        sourceType:
+          type: string
+      required:
+        - content
+        - fileName
+        - fileType
+
+    SourceConfig:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        sourceType:
+          type: string
+        category:
+          type: string
+        status:
+          type: string
+          enum: [active, indexing, placeholder, inactive]
+        description:
+          type: string
+        url:
+          type: string
+      required:
+        - id
+        - name
+        - sourceType
+        - category
+        - status
+        - description
 
     PublishResult:
       type: object
@@ -271,8 +370,12 @@ components:
           type: string
         status:
           type: string
-          enum: [active, indexing, inactive]
+          enum: [active, indexing, inactive, placeholder]
         description:
+          type: string
+        sourceType:
+          type: string
+        category:
           type: string
       required:
         - id

@@ -6,12 +6,15 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { SignalClassification } from "./signalClassification";
+import type { SignalSourceType } from "./signalSourceType";
+import type { SignalStatus } from "./signalStatus";
 
 export interface Signal {
   id: string;
   title: string;
   classification: SignalClassification;
   source: string;
+  sourceType?: SignalSourceType;
   summary: string;
   whyItMatters: string;
   confidence: number;
@@ -20,4 +23,6 @@ export interface Signal {
   systemImpact: string[];
   engine: string;
   timestamp: string;
+  status?: SignalStatus;
+  rawText?: string;
 }

@@ -26,11 +26,36 @@ export const SignalClassification = {
   WATCH: "WATCH",
 } as const;
 
+export type SignalSourceType =
+  (typeof SignalSourceType)[keyof typeof SignalSourceType];
+
+export const SignalSourceType = {
+  News: "News",
+  Social: "Social",
+  Document: "Document",
+  Contract: "Contract",
+  Dataset: "Dataset",
+  Filing: "Filing",
+  Market: "Market",
+  Manual: "Manual",
+} as const;
+
+export type SignalStatus = (typeof SignalStatus)[keyof typeof SignalStatus];
+
+export const SignalStatus = {
+  pulled: "pulled",
+  uploaded: "uploaded",
+  analyzed: "analyzed",
+  saved: "saved",
+  published: "published",
+} as const;
+
 export interface Signal {
   id: string;
   title: string;
   classification: SignalClassification;
   source: string;
+  sourceType?: SignalSourceType;
   summary: string;
   whyItMatters: string;
   confidence: number;
@@ -39,6 +64,45 @@ export interface Signal {
   systemImpact: string[];
   engine: string;
   timestamp: string;
+  status?: SignalStatus;
+  rawText?: string;
+}
+
+export type IngestFileRequestFileType =
+  (typeof IngestFileRequestFileType)[keyof typeof IngestFileRequestFileType];
+
+export const IngestFileRequestFileType = {
+  csv: "csv",
+  json: "json",
+  txt: "txt",
+} as const;
+
+export interface IngestFileRequest {
+  /** Raw file content (text, CSV, or JSON as string) */
+  content: string;
+  fileName: string;
+  fileType: IngestFileRequestFileType;
+  sourceType?: string;
+}
+
+export type SourceConfigStatus =
+  (typeof SourceConfigStatus)[keyof typeof SourceConfigStatus];
+
+export const SourceConfigStatus = {
+  active: "active",
+  indexing: "indexing",
+  placeholder: "placeholder",
+  inactive: "inactive",
+} as const;
+
+export interface SourceConfig {
+  id: string;
+  name: string;
+  sourceType: string;
+  category: string;
+  status: SourceConfigStatus;
+  description: string;
+  url?: string;
 }
 
 export interface PublishResult {
@@ -52,6 +116,7 @@ export const FeedStatus = {
   active: "active",
   indexing: "indexing",
   inactive: "inactive",
+  placeholder: "placeholder",
 } as const;
 
 export interface Feed {
@@ -59,6 +124,8 @@ export interface Feed {
   name: string;
   status: FeedStatus;
   description: string;
+  sourceType?: string;
+  category?: string;
 }
 
 export type OpsLogEntryLevel =
@@ -90,3 +157,10 @@ export interface OpsLogEntryInput {
   message: string;
   level: OpsLogEntryInputLevel;
 }
+
+export type IngestRssParams = {
+  /**
+   * Comma-separated source IDs to fetch (defaults to all active)
+   */
+  sources?: string;
+};

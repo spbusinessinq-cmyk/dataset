@@ -4,6 +4,7 @@ export type Signal = {
   title: string;
   classification: "CRITICAL" | "ELEVATED" | "ROUTINE" | "WATCH";
   source: string;
+  sourceType?: "News" | "Social" | "Document" | "Contract" | "Dataset" | "Filing" | "Market" | "Manual";
   summary: string;
   whyItMatters: string;
   confidence: number;
@@ -12,6 +13,8 @@ export type Signal = {
   engine: string;
   timestamp: string;
   systemImpact: string[];
+  status?: "pulled" | "uploaded" | "analyzed" | "saved" | "published";
+  rawText?: string;
 };
 
 // Fallback mock data used when backend is unavailable

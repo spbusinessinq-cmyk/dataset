@@ -37,35 +37,80 @@ function writeFile<T>(name: string, data: T): void {
 }
 
 export const feedsDefault = [
+  // ─── NEWS ────────────────────────────────────────────────────────────────
   {
-    id: "feed-001",
+    id: "feed-reuters-world",
     name: "Reuters World Feed",
     status: "active",
-    description: "Global newswire — real-time geopolitical and market events",
+    description: "Global newswire — geopolitical and security events",
+    sourceType: "RSS",
+    category: "News",
   },
   {
-    id: "feed-002",
-    name: "OSINT Monitor v2",
+    id: "feed-nyt-world",
+    name: "NYT World Feed",
     status: "active",
-    description: "Open-source intelligence aggregator across public channels",
+    description: "New York Times international news and analysis",
+    sourceType: "RSS",
+    category: "News",
   },
   {
-    id: "feed-003",
-    name: "SEC EDGAR Filings",
+    id: "feed-reuters-biz",
+    name: "Reuters Business Feed",
+    status: "active",
+    description: "Reuters business and financial news wire",
+    sourceType: "RSS",
+    category: "News",
+  },
+
+  // ─── FILINGS ─────────────────────────────────────────────────────────────
+  {
+    id: "feed-sec-edgar",
+    name: "SEC / EDGAR Monitor",
+    status: "placeholder",
+    description: "US Securities filings — 8-K, 10-K, S-1 intake",
+    sourceType: "Filing",
+    category: "Filing",
+  },
+
+  // ─── CONTRACTS ───────────────────────────────────────────────────────────
+  {
+    id: "feed-contracts",
+    name: "Contract Dataset Intake",
+    status: "placeholder",
+    description: "Vendor, procurement, and bilateral agreement intake",
+    sourceType: "Contract",
+    category: "Contract",
+  },
+
+  // ─── MARKET ──────────────────────────────────────────────────────────────
+  {
+    id: "feed-market",
+    name: "Market / Economic Feed",
+    status: "placeholder",
+    description: "FX, commodity, and macro economic indicator stream",
+    sourceType: "Market",
+    category: "Market",
+  },
+
+  // ─── SOCIAL ──────────────────────────────────────────────────────────────
+  {
+    id: "feed-social",
+    name: "Social / Web Monitor",
+    status: "placeholder",
+    description: "Open-source social signal and web trend monitor",
+    sourceType: "Social",
+    category: "Social",
+  },
+
+  // ─── DATASETS ────────────────────────────────────────────────────────────
+  {
+    id: "feed-datasets",
+    name: "Uploaded Dataset Queue",
     status: "indexing",
-    description: "US Securities and Exchange Commission filing database",
-  },
-  {
-    id: "feed-004",
-    name: "Dark Web Signals",
-    status: "inactive",
-    description: "Monitored dark-web forums and markets — manual trigger only",
-  },
-  {
-    id: "feed-005",
-    name: "Custom Dataset: trade_2025.csv",
-    status: "active",
-    description: "Uploaded trade flow dataset — Q1-Q2 2025",
+    description: "User-uploaded CSV, JSON, and TXT awaiting normalization",
+    sourceType: "Dataset",
+    category: "Dataset",
   },
 ];
 
@@ -79,13 +124,13 @@ export const opsLogDefault = [
   {
     id: "log-002",
     timestamp: new Date(Date.now() - 3 * 60000).toISOString(),
-    message: "Dataset trade_2025.csv successfully indexed (12,847 records)",
+    message: "Multi-source intake model initialized — News, Filing, Contract, Market, Social, Dataset lanes active",
     level: "info",
   },
   {
     id: "log-003",
     timestamp: new Date(Date.now() - 2 * 60000).toISOString(),
-    message: "New signal ingested from Reuters World Feed — classified ELEVATED",
+    message: "RSS feeds online — Reuters World, NYT World, Reuters Business",
     level: "info",
   },
 ];

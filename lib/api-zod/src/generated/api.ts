@@ -31,6 +31,18 @@ export const AnalyzeSignalResponse = zod.object({
   title: zod.string(),
   classification: zod.enum(["CRITICAL", "ELEVATED", "ROUTINE", "WATCH"]),
   source: zod.string(),
+  sourceType: zod
+    .enum([
+      "News",
+      "Social",
+      "Document",
+      "Contract",
+      "Dataset",
+      "Filing",
+      "Market",
+      "Manual",
+    ])
+    .optional(),
   summary: zod.string(),
   whyItMatters: zod.string(),
   confidence: zod.number(),
@@ -39,17 +51,40 @@ export const AnalyzeSignalResponse = zod.object({
   systemImpact: zod.array(zod.string()),
   engine: zod.string(),
   timestamp: zod.string(),
+  status: zod
+    .enum(["pulled", "uploaded", "analyzed", "saved", "published"])
+    .optional(),
+  rawText: zod.string().optional(),
 });
 
 /**
- * Fetches Reuters and NYT RSS feeds, converts items to signals, saves and returns them
+ * Fetches configured RSS feeds and returns signal candidates
  * @summary Pull live signals from RSS feeds
  */
-export const IngestSignalsResponseItem = zod.object({
+export const IngestRssQueryParams = zod.object({
+  sources: zod.coerce
+    .string()
+    .optional()
+    .describe("Comma-separated source IDs to fetch (defaults to all active)"),
+});
+
+export const IngestRssResponseItem = zod.object({
   id: zod.string(),
   title: zod.string(),
   classification: zod.enum(["CRITICAL", "ELEVATED", "ROUTINE", "WATCH"]),
   source: zod.string(),
+  sourceType: zod
+    .enum([
+      "News",
+      "Social",
+      "Document",
+      "Contract",
+      "Dataset",
+      "Filing",
+      "Market",
+      "Manual",
+    ])
+    .optional(),
   summary: zod.string(),
   whyItMatters: zod.string(),
   confidence: zod.number(),
@@ -58,8 +93,72 @@ export const IngestSignalsResponseItem = zod.object({
   systemImpact: zod.array(zod.string()),
   engine: zod.string(),
   timestamp: zod.string(),
+  status: zod
+    .enum(["pulled", "uploaded", "analyzed", "saved", "published"])
+    .optional(),
+  rawText: zod.string().optional(),
 });
-export const IngestSignalsResponse = zod.array(IngestSignalsResponseItem);
+export const IngestRssResponse = zod.array(IngestRssResponseItem);
+
+/**
+ * Parses uploaded file content into signal candidates
+ * @summary Ingest a file (CSV, JSON, TXT)
+ */
+export const IngestFileBody = zod.object({
+  content: zod
+    .string()
+    .describe("Raw file content (text, CSV, or JSON as string)"),
+  fileName: zod.string(),
+  fileType: zod.enum(["csv", "json", "txt"]),
+  sourceType: zod.string().optional(),
+});
+
+export const IngestFileResponseItem = zod.object({
+  id: zod.string(),
+  title: zod.string(),
+  classification: zod.enum(["CRITICAL", "ELEVATED", "ROUTINE", "WATCH"]),
+  source: zod.string(),
+  sourceType: zod
+    .enum([
+      "News",
+      "Social",
+      "Document",
+      "Contract",
+      "Dataset",
+      "Filing",
+      "Market",
+      "Manual",
+    ])
+    .optional(),
+  summary: zod.string(),
+  whyItMatters: zod.string(),
+  confidence: zod.number(),
+  tags: zod.array(zod.string()),
+  entities: zod.array(zod.string()),
+  systemImpact: zod.array(zod.string()),
+  engine: zod.string(),
+  timestamp: zod.string(),
+  status: zod
+    .enum(["pulled", "uploaded", "analyzed", "saved", "published"])
+    .optional(),
+  rawText: zod.string().optional(),
+});
+export const IngestFileResponse = zod.array(IngestFileResponseItem);
+
+/**
+ * Returns all configured source classes (active, placeholder, inactive)
+ * @summary List all configured source lanes
+ */
+export const ListSourcesResponseItem = zod.object({
+  id: zod.string(),
+  name: zod.string(),
+  sourceType: zod.string(),
+  category: zod.string(),
+  status: zod.enum(["active", "indexing", "placeholder", "inactive"]),
+  description: zod.string(),
+  url: zod.string().optional(),
+});
+export const ListSourcesResponse = zod.array(ListSourcesResponseItem);
 
 /**
  * Returns all saved signals, newest first
@@ -70,6 +169,18 @@ export const ListSignalsResponseItem = zod.object({
   title: zod.string(),
   classification: zod.enum(["CRITICAL", "ELEVATED", "ROUTINE", "WATCH"]),
   source: zod.string(),
+  sourceType: zod
+    .enum([
+      "News",
+      "Social",
+      "Document",
+      "Contract",
+      "Dataset",
+      "Filing",
+      "Market",
+      "Manual",
+    ])
+    .optional(),
   summary: zod.string(),
   whyItMatters: zod.string(),
   confidence: zod.number(),
@@ -78,6 +189,10 @@ export const ListSignalsResponseItem = zod.object({
   systemImpact: zod.array(zod.string()),
   engine: zod.string(),
   timestamp: zod.string(),
+  status: zod
+    .enum(["pulled", "uploaded", "analyzed", "saved", "published"])
+    .optional(),
+  rawText: zod.string().optional(),
 });
 export const ListSignalsResponse = zod.array(ListSignalsResponseItem);
 
@@ -90,6 +205,18 @@ export const SaveSignalBody = zod.object({
   title: zod.string(),
   classification: zod.enum(["CRITICAL", "ELEVATED", "ROUTINE", "WATCH"]),
   source: zod.string(),
+  sourceType: zod
+    .enum([
+      "News",
+      "Social",
+      "Document",
+      "Contract",
+      "Dataset",
+      "Filing",
+      "Market",
+      "Manual",
+    ])
+    .optional(),
   summary: zod.string(),
   whyItMatters: zod.string(),
   confidence: zod.number(),
@@ -98,6 +225,10 @@ export const SaveSignalBody = zod.object({
   systemImpact: zod.array(zod.string()),
   engine: zod.string(),
   timestamp: zod.string(),
+  status: zod
+    .enum(["pulled", "uploaded", "analyzed", "saved", "published"])
+    .optional(),
+  rawText: zod.string().optional(),
 });
 
 /**
@@ -109,6 +240,18 @@ export const PublishSignalBody = zod.object({
   title: zod.string(),
   classification: zod.enum(["CRITICAL", "ELEVATED", "ROUTINE", "WATCH"]),
   source: zod.string(),
+  sourceType: zod
+    .enum([
+      "News",
+      "Social",
+      "Document",
+      "Contract",
+      "Dataset",
+      "Filing",
+      "Market",
+      "Manual",
+    ])
+    .optional(),
   summary: zod.string(),
   whyItMatters: zod.string(),
   confidence: zod.number(),
@@ -117,6 +260,10 @@ export const PublishSignalBody = zod.object({
   systemImpact: zod.array(zod.string()),
   engine: zod.string(),
   timestamp: zod.string(),
+  status: zod
+    .enum(["pulled", "uploaded", "analyzed", "saved", "published"])
+    .optional(),
+  rawText: zod.string().optional(),
 });
 
 export const PublishSignalResponse = zod.object({
@@ -131,8 +278,10 @@ export const PublishSignalResponse = zod.object({
 export const ListFeedsResponseItem = zod.object({
   id: zod.string(),
   name: zod.string(),
-  status: zod.enum(["active", "indexing", "inactive"]),
+  status: zod.enum(["active", "indexing", "inactive", "placeholder"]),
   description: zod.string(),
+  sourceType: zod.string().optional(),
+  category: zod.string().optional(),
 });
 export const ListFeedsResponse = zod.array(ListFeedsResponseItem);
 

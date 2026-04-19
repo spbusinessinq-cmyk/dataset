@@ -1,0 +1,289 @@
+FINAL CORE PASS — MULTI-SOURCE RSR DATA HUB
+
+IMPORTANT:
+Keep the current black-first tactical UI and overall structure.
+Do NOT redesign the app into a different product.
+Upgrade it into a real multi-source operator-facing data hub.
+
+MISSION:
+The current direction is too news-only.
+RSR Data Hub must support multiple classes of data, not just RSS headlines.
+This app should feel like a central intake and analysis surface for many source types.
+
+CORE GOAL:
+Transform the hub into a MULTI-SOURCE DATA INTAKE + ANALYSIS system with two major ingest modes:
+1. Manual / Upload Intake
+2. Live Pull Intake
+
+The system must be structurally built for these source classes:
+- News
+- Social
+- Documents
+- Contracts
+- Datasets
+- Filings
+- Market / Economic
+- Manual
+
+==================================================
+1. INGEST MODEL REWORK
+==================================================
+
+Replace the current ingest logic with a true multi-source intake model.
+
+The top-left area should support two tabs or modes:
+
+TAB A — MANUAL / UPLOAD
+Support:
+- raw text paste
+- source field
+- source type dropdown:
+  - News
+  - Social
+  - Document
+  - Contract
+  - Dataset
+  - Filing
+  - Market
+  - Manual
+- engine dropdown
+- upload controls for:
+  - CSV
+  - JSON
+  - TXT
+(If file parsing must stay simple in this pass, at minimum support CSV + JSON + TXT)
+
+Buttons:
+- Run Analysis
+- Save Input
+
+Behavior:
+- pasted text or uploaded file content can be analyzed
+- uploaded structured files should be previewed and normalized into signal candidates if possible
+
+TAB B — LIVE PULL
+Support multiple live source classes, even if only some are fully active now.
+
+Live source selector should include:
+- Reuters World RSS
+- NYT World RSS
+- Reuters Business RSS
+- SEC / Filings placeholder
+- Contracts placeholder
+- Market Data placeholder
+- Social / Web placeholder
+
+Buttons:
+- Pull Live Signals
+- Pull + Analyze
+
+IMPORTANT:
+Even if some live lanes are placeholders for now, the app structure must support all source classes and visually communicate that this is a multi-source hub, not a news-only app.
+
+==================================================
+2. LIVE INTAKE QUEUE
+==================================================
+
+Add or upgrade a LIVE INTAKE QUEUE panel.
+
+Each queue item should include:
+- title
+- source
+- source type
+- timestamp
+- short summary/snippet
+- status
+- classification badge
+- actions:
+  - Analyze
+  - Save
+  - Publish
+  - Load
+
+Queue must support mixed source classes:
+- RSS signal
+- uploaded dataset row/group
+- uploaded document
+- manual input candidate
+
+==================================================
+3. BACKEND SOURCE SUPPORT
+==================================================
+
+Create or upgrade backend ingestion into a true source router.
+
+Required backend support:
+
+A. RSS NEWS INGEST (fully working now)
+Endpoint:
+GET /api/ingest/rss
+
+Feeds:
+- Reuters World
+- NYT World
+- Reuters Business if available
+
+Behavior:
+- fetch
+- parse
+- normalize
+- dedupe
+- return signal candidates
+- save candidates if needed
+
+B. FILE INGEST (working now)
+Endpoint:
+POST /api/ingest/file
+
+Support:
+- CSV
+- JSON
+- TXT
+
+Behavior:
+- parse uploaded file
+- normalize records into signal candidates where possible
+- for CSV/JSON, convert rows/items into candidate objects
+- for TXT, treat content like raw text signal input
+
+C. MANUAL INGEST (working now)
+Manual input should continue to work via /api/analyze
+
+D. PLACEHOLDER LIVE CONNECTORS (structured for later)
+Create source config support for:
+- filings
+- contracts
+- market
+- social
+
+These do not need full external integrations in this pass, but the source model, config structure, and UI must be built so they can be added cleanly later without reworking the app.
+
+==================================================
+4. UNIFIED SIGNAL OBJECT
+==================================================
+
+All data entering the system should normalize into one common object shape, for example:
+
+{
+  "id": "SG-0049",
+  "title": "...",
+  "summary": "...",
+  "rawText": "...",
+  "source": "Reuters",
+  "sourceType": "News",
+  "classification": "WATCH",
+  "confidence": 72,
+  "engine": "INGEST",
+  "tags": [],
+  "entities": [],
+  "systemImpact": [],
+  "timestamp": "...",
+  "status": "pulled"
+}
+
+This is critical.
+No matter what enters the hub, it should become a signal candidate.
+
+==================================================
+5. ANALYSIS FLOW
+==================================================
+
+Keep /api/analyze, but make it work with the unified signal object.
+
+Behavior:
+- analyze raw text or signal candidate
+- use local Ollama first if available
+- fallback to heuristic logic if Ollama unavailable
+- return structured intelligence output
+
+Support sourceType-aware prompts or logic.
+For example:
+- News → geopolitical/news framing
+- Contract → procurement / vendor framing
+- Dataset → trend / anomaly framing
+- Filing → financial / corporate framing
+
+==================================================
+6. TOP OF APP MUST FEEL MULTI-SOURCE
+==================================================
+
+The app should no longer visually feel like “news feed analyzer.”
+
+It should clearly read as:
+- intake from many data types
+- queue of mixed signal candidates
+- selected signal workspace
+- publishable outputs
+
+Keep it clean, tactical, operator-grade.
+
+==================================================
+7. RECENT SIGNALS / STORAGE
+==================================================
+
+Recent Signals must store mixed source types.
+Add a sourceType column or visible indicator.
+
+Saved items should include:
+- sourceType
+- source
+- title
+- classification
+- confidence
+- timestamp
+- engine
+
+Keep local file persistence.
+
+==================================================
+8. ACTIVE FEEDS / DATASETS PANEL
+==================================================
+
+Upgrade this panel so it represents broader source classes, for example:
+- Reuters World Feed
+- NYT World Feed
+- Reuters Business Feed
+- SEC Filing Monitor
+- Contract Dataset Intake
+- Market Watch Feed
+- Uploaded Dataset Queue
+
+Each can show:
+- active
+- indexing
+- placeholder
+- inactive
+
+Even placeholder lanes should look intentional and ready.
+
+==================================================
+9. DO NOT OVERBUILD
+==================================================
+
+Do NOT add:
+- auth
+- cloud DB
+- billing
+- heavy charting
+- unnecessary animations
+
+Focus on:
+- multi-source structure
+- real RSS ingest
+- real file ingest
+- real analysis loop
+- real local storage
+
+==================================================
+10. DELIVERABLE
+==================================================
+
+Return:
+- full updated project structure
+- updated frontend/backend code
+- run instructions
+- explanation of each intake type
+- note which source types are fully working now vs structured placeholders for later
+
+IMPORTANT:
+This app must now read as an operator-facing data hub for many classes of information, not just a news dashboard.

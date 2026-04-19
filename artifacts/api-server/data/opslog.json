@@ -1,5 +1,29 @@
 [
   {
+    "id": "log-5a103e22",
+    "timestamp": "2026-04-19T07:29:38.619Z",
+    "message": "File ingest complete — contracts_q2.csv: 3 candidates extracted",
+    "level": "info"
+  },
+  {
+    "id": "log-9fc23558",
+    "timestamp": "2026-04-19T07:29:38.617Z",
+    "message": "File ingest started — contracts_q2.csv (CSV)",
+    "level": "info"
+  },
+  {
+    "id": "log-dc4514b0",
+    "timestamp": "2026-04-19T07:29:35.212Z",
+    "message": "RSS ingest complete — 5 candidates returned for queue",
+    "level": "info"
+  },
+  {
+    "id": "log-02d6d73e",
+    "timestamp": "2026-04-19T07:29:35.094Z",
+    "message": "RSS ingest started — NYT World Feed",
+    "level": "info"
+  },
+  {
     "id": "log-bcbe0a99",
     "timestamp": "2026-04-19T07:08:22.321Z",
     "message": "RSS ingest complete — 5 signals pulled (Reuters + NYT)",

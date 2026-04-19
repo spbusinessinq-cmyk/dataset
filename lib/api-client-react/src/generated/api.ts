@@ -20,10 +20,13 @@ import type {
   AnalyzeRequest,
   Feed,
   HealthStatus,
+  IngestFileRequest,
+  IngestRssParams,
   OpsLogEntry,
   OpsLogEntryInput,
   PublishResult,
   Signal,
+  SourceConfig,
 } from "./api.schemas";
 
 import { customFetch } from "../custom-fetch";
@@ -199,32 +202,214 @@ export const useAnalyzeSignal = <
 };
 
 /**
- * Fetches Reuters and NYT RSS feeds, converts items to signals, saves and returns them
+ * Fetches configured RSS feeds and returns signal candidates
  * @summary Pull live signals from RSS feeds
  */
-export const getIngestSignalsUrl = () => {
-  return `/api/ingest`;
+export const getIngestRssUrl = (params?: IngestRssParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/ingest/rss?${stringifiedParams}`
+    : `/api/ingest/rss`;
 };
 
-export const ingestSignals = async (
+export const ingestRss = async (
+  params?: IngestRssParams,
   options?: RequestInit,
 ): Promise<Signal[]> => {
-  return customFetch<Signal[]>(getIngestSignalsUrl(), {
+  return customFetch<Signal[]>(getIngestRssUrl(params), {
     ...options,
     method: "GET",
   });
 };
 
-export const getIngestSignalsQueryKey = () => {
-  return [`/api/ingest`] as const;
+export const getIngestRssQueryKey = (params?: IngestRssParams) => {
+  return [`/api/ingest/rss`, ...(params ? [params] : [])] as const;
 };
 
-export const getIngestSignalsQueryOptions = <
-  TData = Awaited<ReturnType<typeof ingestSignals>>,
+export const getIngestRssQueryOptions = <
+  TData = Awaited<ReturnType<typeof ingestRss>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: IngestRssParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof ingestRss>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getIngestRssQueryKey(params);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof ingestRss>>> = ({
+    signal,
+  }) => ingestRss(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof ingestRss>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type IngestRssQueryResult = NonNullable<
+  Awaited<ReturnType<typeof ingestRss>>
+>;
+export type IngestRssQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Pull live signals from RSS feeds
+ */
+
+export function useIngestRss<
+  TData = Awaited<ReturnType<typeof ingestRss>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: IngestRssParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof ingestRss>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getIngestRssQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Parses uploaded file content into signal candidates
+ * @summary Ingest a file (CSV, JSON, TXT)
+ */
+export const getIngestFileUrl = () => {
+  return `/api/ingest/file`;
+};
+
+export const ingestFile = async (
+  ingestFileRequest: IngestFileRequest,
+  options?: RequestInit,
+): Promise<Signal[]> => {
+  return customFetch<Signal[]>(getIngestFileUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(ingestFileRequest),
+  });
+};
+
+export const getIngestFileMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof ingestFile>>,
+    TError,
+    { data: BodyType<IngestFileRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof ingestFile>>,
+  TError,
+  { data: BodyType<IngestFileRequest> },
+  TContext
+> => {
+  const mutationKey = ["ingestFile"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof ingestFile>>,
+    { data: BodyType<IngestFileRequest> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return ingestFile(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type IngestFileMutationResult = NonNullable<
+  Awaited<ReturnType<typeof ingestFile>>
+>;
+export type IngestFileMutationBody = BodyType<IngestFileRequest>;
+export type IngestFileMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Ingest a file (CSV, JSON, TXT)
+ */
+export const useIngestFile = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof ingestFile>>,
+    TError,
+    { data: BodyType<IngestFileRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof ingestFile>>,
+  TError,
+  { data: BodyType<IngestFileRequest> },
+  TContext
+> => {
+  return useMutation(getIngestFileMutationOptions(options));
+};
+
+/**
+ * Returns all configured source classes (active, placeholder, inactive)
+ * @summary List all configured source lanes
+ */
+export const getListSourcesUrl = () => {
+  return `/api/sources`;
+};
+
+export const listSources = async (
+  options?: RequestInit,
+): Promise<SourceConfig[]> => {
+  return customFetch<SourceConfig[]>(getListSourcesUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListSourcesQueryKey = () => {
+  return [`/api/sources`] as const;
+};
+
+export const getListSourcesQueryOptions = <
+  TData = Awaited<ReturnType<typeof listSources>>,
   TError = ErrorType<unknown>,
 >(options?: {
   query?: UseQueryOptions<
-    Awaited<ReturnType<typeof ingestSignals>>,
+    Awaited<ReturnType<typeof listSources>>,
     TError,
     TData
   >;
@@ -232,40 +417,40 @@ export const getIngestSignalsQueryOptions = <
 }) => {
   const { query: queryOptions, request: requestOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getIngestSignalsQueryKey();
+  const queryKey = queryOptions?.queryKey ?? getListSourcesQueryKey();
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof ingestSignals>>> = ({
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listSources>>> = ({
     signal,
-  }) => ingestSignals({ signal, ...requestOptions });
+  }) => listSources({ signal, ...requestOptions });
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof ingestSignals>>,
+    Awaited<ReturnType<typeof listSources>>,
     TError,
     TData
   > & { queryKey: QueryKey };
 };
 
-export type IngestSignalsQueryResult = NonNullable<
-  Awaited<ReturnType<typeof ingestSignals>>
+export type ListSourcesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listSources>>
 >;
-export type IngestSignalsQueryError = ErrorType<unknown>;
+export type ListSourcesQueryError = ErrorType<unknown>;
 
 /**
- * @summary Pull live signals from RSS feeds
+ * @summary List all configured source lanes
  */
 
-export function useIngestSignals<
-  TData = Awaited<ReturnType<typeof ingestSignals>>,
+export function useListSources<
+  TData = Awaited<ReturnType<typeof listSources>>,
   TError = ErrorType<unknown>,
 >(options?: {
   query?: UseQueryOptions<
-    Awaited<ReturnType<typeof ingestSignals>>,
+    Awaited<ReturnType<typeof listSources>>,
     TError,
     TData
   >;
   request?: SecondParameter<typeof customFetch>;
 }): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getIngestSignalsQueryOptions(options);
+  const queryOptions = getListSourcesQueryOptions(options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;
