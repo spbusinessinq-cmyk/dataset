@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "RSR Data Hub"
+version = "1.0.0"
+id = "artifacts/rsr-data-hub"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 23154
+
+[services.development]
+run = "pnpm --filter @workspace/rsr-data-hub run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/rsr-data-hub", "run", "build" ]
+publicDir = "artifacts/rsr-data-hub/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "23154"
+BASE_PATH = "/"
