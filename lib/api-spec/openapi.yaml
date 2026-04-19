@@ -103,6 +103,36 @@ paths:
                 items:
                   $ref: "#/components/schemas/Signal"
 
+  /ingest/all:
+    get:
+      operationId: ingestAll
+      tags: [ingest]
+      summary: Pull all live sources
+      description: Fetches all active sources (RSS, market API, contracts API) in parallel and returns normalized signal candidates
+      responses:
+        "200":
+          description: Normalized signal candidates from all sources
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Signal"
+
+  /status:
+    get:
+      operationId: getStatus
+      tags: [health]
+      summary: Get system status
+      description: Returns backend status, Ollama availability, signal count, and last pull time
+      responses:
+        "200":
+          description: System status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SystemStatus"
+
   /sources:
     get:
       operationId: listSources
@@ -412,3 +442,20 @@ components:
       required:
         - message
         - level
+
+    SystemStatus:
+      type: object
+      properties:
+        backend:
+          type: string
+        ollama:
+          type: string
+        signalCount:
+          type: integer
+        lastPullTime:
+          type: string
+          nullable: true
+      required:
+        - backend
+        - ollama
+        - signalCount

@@ -1,5 +1,33 @@
 [
   {
+    "id": "SG-0006",
+    "title": "Kyiv Mass Shooting Kills 6 and Gunman Is Shot",
+    "classification": "CRITICAL",
+    "source": "NYT World Feed",
+    "sourceType": "News",
+    "summary": "Kyiv Mass Shooting Kills 6 and Gunman Is Shot Dead After Taking Hostages in Grocery. It was the deadliest mass shooting in Ukraine in years, where firearms have proliferated since the war with Russia began.",
+    "whyItMatters": "Immediate operational concern requiring priority assessment. CONFLICT and RUSSIA dynamics are directly implicated.",
+    "confidence": 84,
+    "tags": [
+      "NEWS",
+      "CONFLICT",
+      "RUSSIA"
+    ],
+    "entities": [
+      "Kyiv",
+      "Mass",
+      "Shooting",
+      "Kills",
+      "Gunman"
+    ],
+    "systemImpact": [
+      "National Security"
+    ],
+    "engine": "AXION",
+    "timestamp": "2026-04-19T07:34:13.157Z",
+    "status": "analyzed"
+  },
+  {
     "id": "SG-0001",
     "title": "What to Know About the Bulgarian Election",
     "classification": "WATCH",

@@ -1,74 +1,56 @@
 [
   {
-    "id": "log-8e6c35fb",
-    "timestamp": "2026-04-19T07:33:39.853Z",
-    "message": "RSS ingest complete — 5 candidates returned for queue",
+    "id": "log-b7bbceff",
+    "timestamp": "2026-04-19T08:01:46.069Z",
+    "message": "Pull + Analyze complete — 0 analyzed and saved, 14 candidates queued",
     "level": "info"
   },
   {
-    "id": "log-760037b6",
-    "timestamp": "2026-04-19T07:33:39.791Z",
-    "message": "RSS ingest initiated — reuters-world, nyt-world, reuters-business",
+    "id": "log-aba438a3",
+    "timestamp": "2026-04-19T08:01:45.525Z",
+    "message": "Live ingest complete — 20 candidates returned (News, Social, Filing, Market, Contract)",
     "level": "info"
   },
   {
-    "id": "log-61c8d6ed",
-    "timestamp": "2026-04-19T07:33:39.779Z",
-    "message": "RSS ingest started — Reuters World Feed, NYT World Feed, Reuters Business Feed",
+    "id": "log-9e837b5a",
+    "timestamp": "2026-04-19T08:01:45.055Z",
+    "message": "Pull + Analyze initiated — all active sources",
     "level": "info"
   },
   {
-    "id": "log-5a103e22",
-    "timestamp": "2026-04-19T07:29:38.619Z",
-    "message": "File ingest complete — contracts_q2.csv: 3 candidates extracted",
+    "id": "log-bbb6aef8",
+    "timestamp": "2026-04-19T08:01:45.034Z",
+    "message": "Full live ingest initiated — News, Social, Filings, Market, Contracts",
     "level": "info"
   },
   {
-    "id": "log-9fc23558",
-    "timestamp": "2026-04-19T07:29:38.617Z",
-    "message": "File ingest started — contracts_q2.csv (CSV)",
+    "id": "log-e519fa10",
+    "timestamp": "2026-04-19T08:01:09.725Z",
+    "message": "Live ingest complete — 20 candidates returned (News, Social, Filing, Market, Contract)",
     "level": "info"
   },
   {
-    "id": "log-dc4514b0",
-    "timestamp": "2026-04-19T07:29:35.212Z",
-    "message": "RSS ingest complete — 5 candidates returned for queue",
-    "level": "info"
-  },
-  {
-    "id": "log-02d6d73e",
-    "timestamp": "2026-04-19T07:29:35.094Z",
-    "message": "RSS ingest started — NYT World Feed",
-    "level": "info"
-  },
-  {
-    "id": "log-bcbe0a99",
-    "timestamp": "2026-04-19T07:08:22.321Z",
-    "message": "RSS ingest complete — 5 signals pulled (Reuters + NYT)",
-    "level": "info"
-  },
-  {
-    "id": "log-d69080c0",
-    "timestamp": "2026-04-19T07:08:22.198Z",
-    "message": "RSS ingest started — fetching Reuters and NYT feeds",
+    "id": "log-ab4e702d",
+    "timestamp": "2026-04-19T08:01:08.889Z",
+    "message": "Full live ingest initiated — News, Social, Filings, Market, Contracts",
     "level": "info"
   },
   {
     "id": "log-001",
-    "timestamp": "2026-04-19T06:57:56.958Z",
+    "timestamp": "2026-04-19T07:56:46.505Z",
     "message": "System self-check passed — all engines nominal",
     "level": "info"
   },
   {
     "id": "log-002",
-    "timestamp": "2026-04-19T06:58:56.958Z",
-    "message": "Dataset trade_2025.csv successfully indexed (12,847 records)",
+    "timestamp": "2026-04-19T07:57:46.506Z",
+    "message": "Live source grid online — Reuters, NYT, Reddit, SEC EDGAR, Coindesk, USAspending",
     "level": "info"
   },
   {
     "id": "log-003",
-    "timestamp": "2026-04-19T06:59:56.958Z",
-    "message": "New signal ingested from Reuters World Feed — classified ELEVATED",
+    "timestamp": "2026-04-19T07:58:46.506Z",
+    "message": "Heuristic analysis engine ready — Ollama optional, fallback active",
     "level": "info"
   }
 ]

@@ -1,0 +1,299 @@
+FINAL PASS — LAUNCHABLE LIVE RSR DATA HUB
+
+IMPORTANT:
+Do NOT redesign the UI.
+Do NOT add background auto-ingest loops.
+Do NOT add 60-second polling.
+Do NOT continuously store everything.
+Keep storage lightweight.
+
+MISSION:
+Turn the current RSR Data Hub into a launchable live product:
+- real live data sources
+- real analysis
+- real queue
+- real recent signals
+- Docker-ready
+- minimal storage
+- ready to deploy now
+
+CORE RULE:
+This is a manually triggered live system, not an always-on archiver.
+
+==================================================
+1. KEEP LIVE, REMOVE AUTO-ARCHIVE COMPLEXITY
+==================================================
+
+Remove or avoid:
+- background ingest loop
+- automatic 60-second polling
+- autoMode background workers
+- storing every pull forever
+- publish-to-site behavior
+
+Keep:
+- Pull Live Signals
+- Pull + Analyze
+- Save Signal
+- Generate Brief
+- Export JSON
+- Export CSV
+
+==================================================
+2. REAL LIVE INGESTION
+==================================================
+
+Create or finalize:
+
+GET /api/ingest-all
+
+Use real sources only:
+
+1. Reuters World RSS
+2. NYT World RSS
+3. Reddit WorldNews RSS
+4. SEC Press Releases RSS
+5. Coindesk BTC price API
+6. USAspending contracts API (limited records)
+
+Requirements:
+- fetch sources in parallel
+- timeout each source after 10 seconds
+- normalize all results into one signal format
+- dedupe within the current pull
+- return live signal candidates
+
+Signal shape:
+{
+  id,
+  title,
+  summary,
+  source,
+  sourceType,
+  timestamp,
+  rawText
+}
+
+Supported sourceType values:
+- NEWS
+- SOCIAL
+- FILING
+- MARKET
+- CONTRACT
+
+IMPORTANT:
+Do not persist every raw pulled item automatically.
+Pulled items should first populate the LIVE INTAKE QUEUE in memory / frontend state.
+
+==================================================
+3. REAL ANALYSIS
+==================================================
+
+Keep or improve /api/analyze
+
+Use:
+- Ollama first
+- fallback heuristic logic if Ollama unavailable
+
+Env vars:
+OLLAMA_BASE_URL
+OLLAMA_MODEL
+
+Defaults:
+OLLAMA_BASE_URL=http://localhost:11434
+OLLAMA_MODEL=llama3.2:3b
+
+Input:
+- raw text or selected signal candidate
+
+Output:
+{
+  id,
+  title,
+  summary,
+  whyItMatters,
+  classification,
+  confidence,
+  tags,
+  entities,
+  systemImpact,
+  priorityScore,
+  source,
+  sourceType,
+  timestamp,
+  engine,
+  analyzed: true
+}
+
+==================================================
+4. MANUAL LIVE WORKFLOW
+==================================================
+
+The app should now work like this:
+
+A. Click "Pull Live Signals"
+- fetch real data
+- populate LIVE INTAKE QUEUE
+- do not save all of it yet
+
+B. Click "Pull + Analyze"
+- fetch real data
+- analyze the returned items
+- populate queue with analyzed items
+- prepend analyzed items into Recent Signals
+- save ONLY analyzed items
+
+C. Click "Analyze" on a queue item
+- analyze selected item
+- load center analysis panel
+- add to Recent Signals
+- save analyzed result
+
+D. Click "Save Signal"
+- save currently selected/analyzed signal to signals.json
+
+E. Click "Generate Brief"
+- generate structured brief from selected signal
+
+F. Click "Export JSON" or "Export CSV"
+- download selected signal immediately
+
+==================================================
+5. STORAGE MUST STAY LIGHT
+==================================================
+
+Use local files only:
+
+data/
+- signals.json
+- opslog.json
+- feeds.json
+
+Rules:
+- only save analyzed signals
+- cap signals.json at last 250 saved records
+- cap opslog.json at last 500 entries
+- do not save every raw ingest forever
+- no giant archive behavior
+
+==================================================
+6. RECENT SIGNALS
+==================================================
+
+Recent Signals should now represent:
+- saved analyzed signals only
+
+Requirements:
+- load from signals.json on app load
+- newest first
+- clicking a signal loads it into analysis panel
+- show classification badge, sourceType, source, confidence, timestamp
+
+==================================================
+7. LIVE INTAKE QUEUE
+==================================================
+
+Make LIVE INTAKE QUEUE the star of the app.
+
+Requirements:
+- populated by Pull Live Signals
+- mixed source types
+- each item shows:
+  title
+  source
+  sourceType
+  timestamp
+  snippet
+  actions: Analyze / Save / Load
+
+Queue does not need to persist forever.
+It is the current-session working intake area.
+
+==================================================
+8. BRIEF GENERATION
+==================================================
+
+Generate Brief must be real.
+
+When clicked:
+- produce formatted brief from selected analyzed signal
+
+Format:
+- Headline
+- Executive Summary
+- Key Signals
+- Why It Matters
+- Operator Takeaway
+
+Show in modal, side panel, or preview area.
+
+==================================================
+9. SYSTEM STATUS
+==================================================
+
+Keep app feeling live, but simple.
+
+Show:
+- backend status
+- Ollama status if possible
+- live queue count
+- saved signal count
+- last pull time
+
+No background pulse logic needed beyond current session state.
+
+==================================================
+10. DOCKER-READY LAUNCH
+==================================================
+
+Add full Docker support now.
+
+Deliver:
+- Dockerfile
+- docker-compose.yml
+- .env.example
+
+Requirements:
+- production-ready build
+- app served on port 3000
+- env-configurable Ollama URL
+- persistent data folder via volume
+
+If frontend + backend are separate internally, make deployment simple and clean.
+
+Provide exact run instructions:
+- local dev
+- docker build/run
+- docker compose up
+
+==================================================
+11. FINAL PRODUCT BEHAVIOR
+==================================================
+
+At the end of this pass, the app must behave like:
+
+manual launch →
+pull real signals →
+analyze selected or all pulled signals →
+save only what matters →
+generate briefs →
+export results →
+run in Docker
+
+This is a live launchable operator tool, not an autonomous background archive.
+
+==================================================
+12. DELIVERABLE
+==================================================
+
+Return:
+- full project structure
+- all updated code
+- Docker files
+- env example
+- exact run instructions
+- explanation of the live workflow
+- explanation of what is saved vs not saved
+
+IMPORTANT:
+This must be launchable now and storage-conscious.

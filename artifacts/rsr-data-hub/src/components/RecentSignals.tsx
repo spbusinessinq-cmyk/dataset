@@ -6,6 +6,7 @@ import { Database } from "lucide-react";
 interface RecentSignalsProps {
   signals: Signal[];
   isLoading?: boolean;
+  onSelect?: (signal: Signal) => void;
 }
 
 const SOURCE_TYPE_COLORS: Record<string, string> = {
@@ -28,7 +29,7 @@ function formatTimestamp(iso: string): string {
   }
 }
 
-export default function RecentSignals({ signals, isLoading }: RecentSignalsProps) {
+export default function RecentSignals({ signals, isLoading, onSelect }: RecentSignalsProps) {
   return (
     <div className="glass-panel p-4 flex flex-col gap-4 h-full" data-testid="panel-recent-signals">
       <div className="flex items-center justify-between border-b border-card-border pb-2 mb-1">
@@ -69,8 +70,10 @@ export default function RecentSignals({ signals, isLoading }: RecentSignalsProps
                   key={sig.id}
                   className="border-card-border/50 hover:bg-secondary/50 group cursor-pointer transition-colors"
                   data-testid={`row-signal-${sig.id}`}
+                  onClick={() => onSelect?.(sig)}
+                  title="Click to load into analysis panel"
                 >
-                  <TableCell className="font-mono text-xs text-primary font-medium">{sig.id}</TableCell>
+                  <TableCell className="font-mono text-xs text-primary font-medium group-hover:text-primary/80">{sig.id}</TableCell>
                   <TableCell className="font-sans text-xs text-foreground group-hover:text-primary transition-colors truncate max-w-[180px] lg:max-w-[260px]">
                     {sig.title}
                   </TableCell>

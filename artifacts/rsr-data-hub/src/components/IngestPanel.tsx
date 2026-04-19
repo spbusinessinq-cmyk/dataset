@@ -4,19 +4,26 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Activity, Upload, Radio, ChevronRight } from "lucide-react";
+import { Activity, Upload, Radio, Cpu } from "lucide-react";
 
 // ── Source config ────────────────────────────────────────────────────────────
 
-const RSS_SOURCES = [
-  { id: "reuters-world", label: "Reuters World", active: true },
-  { id: "nyt-world", label: "NYT World", active: true },
-  { id: "reuters-business", label: "Reuters Business", active: true },
-  { id: "sec-edgar", label: "SEC / Filings", active: false, placeholder: true },
-  { id: "contracts-intake", label: "Contracts", active: false, placeholder: true },
-  { id: "market-watch", label: "Market Data", active: false, placeholder: true },
-  { id: "social-web", label: "Social / Web", active: false, placeholder: true },
+const ALL_SOURCES = [
+  { id: "reuters-world",    label: "Reuters World",           sourceType: "News",     active: true },
+  { id: "nyt-world",        label: "NYT World",               sourceType: "News",     active: true },
+  { id: "reddit-worldnews", label: "Reddit /r/WorldNews",     sourceType: "Social",   active: true },
+  { id: "sec-edgar",        label: "SEC EDGAR 8-K",           sourceType: "Filing",   active: true },
+  { id: "coindesk-btc",     label: "Coindesk BTC/USD",        sourceType: "Market",   active: true },
+  { id: "usaspending",      label: "USAspending Contracts",   sourceType: "Contract", active: true },
 ];
+
+const SOURCE_TYPE_LABELS: Record<string, string> = {
+  News: "text-blue-400",
+  Social: "text-purple-400",
+  Filing: "text-rose-400",
+  Market: "text-emerald-400",
+  Contract: "text-orange-400",
+};
 
 const SOURCE_TYPES = [
   "News", "Social", "Document", "Contract", "Dataset", "Filing", "Market", "Manual",
@@ -44,6 +51,7 @@ interface IngestPanelProps {
   isPulling: boolean;
   onRunAnalysis: () => void;
   onPullLive: (sourceIds: string[]) => void;
+  onPullAndAnalyze: (sourceIds: string[]) => void;
   onFileIngest: (content: string, fileName: string, fileType: "csv" | "json" | "txt", sourceType: string) => void;
 }
 
@@ -62,10 +70,11 @@ export default function IngestPanel({
   isPulling,
   onRunAnalysis,
   onPullLive,
+  onPullAndAnalyze,
   onFileIngest,
 }: IngestPanelProps) {
   const [activeTab, setActiveTab] = useState<"manual" | "live">("manual");
-  const [selectedSources, setSelectedSources] = useState<string[]>(["reuters-world", "nyt-world", "reuters-business"]);
+  const [selectedSources, setSelectedSources] = useState<string[]>(ALL_SOURCES.map((s) => s.id));
   const [uploadedFile, setUploadedFile] = useState<{ name: string; type: "csv" | "json" | "txt"; content: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -264,17 +273,15 @@ export default function IngestPanel({
 
       {/* ── TAB B: LIVE PULL ──────────────────────────────────────────────── */}
       {activeTab === "live" && (
-        <div className="flex flex-col gap-4 flex-1">
+        <div className="flex flex-col gap-3 flex-1">
           <div className="flex flex-col gap-2">
             <Label className="font-mono text-xs text-muted-foreground">SOURCE LANES</Label>
-            <div className="flex flex-col gap-1.5">
-              {RSS_SOURCES.map((src) => (
+            <div className="flex flex-col gap-1">
+              {ALL_SOURCES.map((src) => (
                 <label
                   key={src.id}
                   className={`flex items-center gap-2 px-2 py-1.5 rounded border transition-colors cursor-pointer ${
-                    src.placeholder
-                      ? "border-card-border/30 opacity-40 cursor-not-allowed"
-                      : selectedSources.includes(src.id)
+                    selectedSources.includes(src.id)
                       ? "border-primary/50 bg-primary/5"
                       : "border-card-border hover:border-primary/30"
                   }`}
@@ -283,22 +290,20 @@ export default function IngestPanel({
                     type="checkbox"
                     className="accent-green-500 w-3 h-3"
                     checked={selectedSources.includes(src.id)}
-                    disabled={src.placeholder || !src.active}
-                    onChange={() => !src.placeholder && toggleSource(src.id)}
+                    onChange={() => toggleSource(src.id)}
                   />
                   <span className="font-mono text-[11px] text-foreground flex-1">{src.label}</span>
-                  <span className={`font-mono text-[9px] ${
-                    src.placeholder ? "text-muted-foreground/40" :
-                    src.active ? "text-primary" : "text-amber-500"
-                  }`}>
-                    {src.placeholder ? "PLACEHOLDER" : src.active ? "ACTIVE" : "INACTIVE"}
+                  <span className={`font-mono text-[9px] font-bold ${SOURCE_TYPE_LABELS[src.sourceType] ?? "text-muted-foreground"}`}>
+                    {src.sourceType.toUpperCase()}
                   </span>
+                  <span className="font-mono text-[9px] text-primary">ACTIVE</span>
                 </label>
               ))}
             </div>
           </div>
 
           <div className="flex flex-col gap-2 mt-auto">
+            {/* PULL LIVE SIGNALS */}
             <Button
               className="w-full font-mono font-bold tracking-widest border border-primary/50 hover:bg-primary/20 bg-background text-primary"
               onClick={() => typeof onPullLive === "function" && onPullLive(selectedSources)}
@@ -308,25 +313,23 @@ export default function IngestPanel({
               <Radio className={`w-3.5 h-3.5 mr-2 ${isPulling ? "animate-pulse" : ""}`} />
               {isPulling ? "PULLING..." : "PULL LIVE SIGNALS"}
             </Button>
+
+            {/* PULL + ANALYZE */}
+            <Button
+              className="w-full font-mono font-bold tracking-widest bg-primary/15 hover:bg-primary/25 border border-primary/60 text-primary"
+              onClick={() => typeof onPullAndAnalyze === "function" && onPullAndAnalyze(selectedSources)}
+              disabled={isPulling || selectedSources.length === 0}
+              data-testid="btn-pull-analyze"
+            >
+              <Cpu className={`w-3.5 h-3.5 mr-2 ${isPulling ? "animate-pulse" : ""}`} />
+              {isPulling ? "ANALYZING..." : "PULL + ANALYZE"}
+            </Button>
+
             <div className="flex justify-between items-center px-1">
               <span className="font-mono text-[10px] text-muted-foreground">ACTIVE LANES</span>
               <span className="font-mono text-[10px] text-primary">
-                {selectedSources.filter((id) => RSS_SOURCES.find((s) => s.id === id)?.active).length} / {RSS_SOURCES.filter((s) => s.active).length} ONLINE
+                {selectedSources.length} / {ALL_SOURCES.length} SELECTED
               </span>
-            </div>
-          </div>
-
-          {/* Info grid for placeholder lanes */}
-          <div className="border border-card-border/30 rounded p-2 bg-background/30">
-            <p className="font-mono text-[9px] text-muted-foreground/60 leading-relaxed">
-              PLACEHOLDER LANES: SEC/EDGAR, Contracts, Market, Social — source model and config ready for integration. These lanes will appear ACTIVE once connectors are wired.
-            </p>
-            <div className="flex gap-1.5 mt-1.5 flex-wrap">
-              {["FILING", "CONTRACT", "MARKET", "SOCIAL"].map((t) => (
-                <span key={t} className="font-mono text-[8px] border border-card-border/30 px-1 py-0.5 rounded text-muted-foreground/50">
-                  {t}
-                </span>
-              ))}
             </div>
           </div>
         </div>

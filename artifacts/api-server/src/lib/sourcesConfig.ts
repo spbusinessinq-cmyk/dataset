@@ -28,54 +28,49 @@ export const SOURCES: SourceConfig[] = [
     description: "New York Times international news and analysis",
     url: "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
   },
+
+  // ─── SOCIAL ──────────────────────────────────────────
   {
-    id: "reuters-business",
-    name: "Reuters Business Feed",
+    id: "reddit-worldnews",
+    name: "Reddit /r/WorldNews",
     sourceType: "RSS",
-    category: "News",
+    category: "Social",
     status: "active",
-    description: "Reuters business and financial news wire",
-    url: "https://feeds.reuters.com/reuters/businessNews",
+    description: "Reddit WorldNews — crowd-sourced global news signals",
+    url: "https://www.reddit.com/r/worldnews/.rss",
   },
 
   // ─── FILINGS ─────────────────────────────────────────
   {
     id: "sec-edgar",
-    name: "SEC / EDGAR Monitor",
-    sourceType: "Filing",
+    name: "SEC EDGAR 8-K Filings",
+    sourceType: "Atom",
     category: "Filing",
-    status: "placeholder",
-    description: "US Securities and Exchange Commission — 8-K, 10-K, S-1 filings",
-  },
-
-  // ─── CONTRACTS ───────────────────────────────────────
-  {
-    id: "contracts-intake",
-    name: "Contract Dataset Intake",
-    sourceType: "Contract",
-    category: "Contract",
-    status: "placeholder",
-    description: "Structured contract intake — vendor, procurement, and bilateral agreements",
+    status: "active",
+    description: "US Securities and Exchange Commission — live 8-K corporate event filings",
+    url: "https://www.sec.gov/cgi-bin/browse-edgar?action=getcurrent&type=8-K&dateb=&owner=include&count=10&search_text=&output=atom",
   },
 
   // ─── MARKET ──────────────────────────────────────────
   {
-    id: "market-watch",
-    name: "Market / Economic Feed",
-    sourceType: "Market",
+    id: "coindesk-btc",
+    name: "Coindesk BTC/USD",
+    sourceType: "API",
     category: "Market",
-    status: "placeholder",
-    description: "FX, commodity, and macro economic indicator stream",
+    status: "active",
+    description: "Coindesk real-time Bitcoin price index",
+    url: "https://api.coindesk.com/v1/bpi/currentprice.json",
   },
 
-  // ─── SOCIAL ──────────────────────────────────────────
+  // ─── CONTRACTS ───────────────────────────────────────
   {
-    id: "social-web",
-    name: "Social / Web Monitor",
-    sourceType: "Social",
-    category: "Social",
-    status: "placeholder",
-    description: "Open-source social signal and web trend monitor",
+    id: "usaspending",
+    name: "USAspending.gov Contracts",
+    sourceType: "API",
+    category: "Contract",
+    status: "active",
+    description: "US federal contract awards — USAspending.gov live data",
+    url: "https://api.usaspending.gov/api/v2/search/spending_by_award/",
   },
 
   // ─── DATASETS ────────────────────────────────────────
@@ -98,7 +93,7 @@ export function getSourceById(id: string) {
 }
 
 export function getRssSources(ids?: string[]) {
-  const rssSources = SOURCES.filter((s) => s.sourceType === "RSS" && s.status === "active");
+  const rssSources = SOURCES.filter((s) => (s.sourceType === "RSS" || s.sourceType === "Atom") && s.status === "active");
   if (!ids || ids.length === 0) return rssSources;
   return rssSources.filter((s) => ids.includes(s.id));
 }

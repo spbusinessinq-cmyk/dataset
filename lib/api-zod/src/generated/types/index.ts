@@ -24,3 +24,4 @@ export * from "./signalSourceType";
 export * from "./signalStatus";
 export * from "./sourceConfig";
 export * from "./sourceConfigStatus";
+export * from "./systemStatus";

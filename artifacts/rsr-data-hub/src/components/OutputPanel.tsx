@@ -1,8 +1,8 @@
 import { Signal } from "@/lib/mock-data";
-import { Share, Download, Save, FileText } from "lucide-react";
+import { Download, Save, FileText, Table2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { useSaveSignal, usePublishSignal, useAppendOpsLog, getListSignalsQueryKey, getListOpsLogQueryKey } from "@workspace/api-client-react";
+import { useSaveSignal, useAppendOpsLog, getListSignalsQueryKey, getListOpsLogQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 
 interface OutputPanelProps {
@@ -16,7 +16,6 @@ export default function OutputPanel({ signal, isProcessing, onGenerateBrief }: O
   const queryClient = useQueryClient();
 
   const saveSignal = useSaveSignal();
-  const publishSignal = usePublishSignal();
   const appendLog = useAppendOpsLog();
 
   const formatTimestamp = (ts: string) => {
@@ -34,13 +33,13 @@ export default function OutputPanel({ signal, isProcessing, onGenerateBrief }: O
       {
         onSuccess: () => {
           appendLog.mutate(
-            { data: { message: `Signal ${signal.id} saved manually — ${signal.title.slice(0, 40)}`, level: "info" } },
+            { data: { message: `Signal ${signal.id} saved — ${signal.title.slice(0, 40)}`, level: "info" } },
             { onSuccess: () => queryClient.invalidateQueries({ queryKey: getListOpsLogQueryKey() }) },
           );
           queryClient.invalidateQueries({ queryKey: getListSignalsQueryKey() });
           toast({
             title: "Signal Saved",
-            description: `${signal.id} saved to local storage`,
+            description: `${signal.id} saved to archive`,
             className: "font-mono border-primary bg-background text-foreground",
           });
         },
@@ -48,34 +47,6 @@ export default function OutputPanel({ signal, isProcessing, onGenerateBrief }: O
           toast({
             title: "Save Failed",
             description: "Could not save signal — backend may be unavailable",
-            variant: "destructive",
-            className: "font-mono",
-          });
-        },
-      },
-    );
-  };
-
-  const handlePublish = () => {
-    if (!signal) return;
-    publishSignal.mutate(
-      { data: signal },
-      {
-        onSuccess: () => {
-          appendLog.mutate(
-            { data: { message: `Signal ${signal.id} published to site — ${signal.title.slice(0, 40)}`, level: "info" } },
-            { onSuccess: () => queryClient.invalidateQueries({ queryKey: getListOpsLogQueryKey() }) },
-          );
-          toast({
-            title: "Published",
-            description: `${signal.id} published successfully`,
-            className: "font-mono border-primary bg-background text-foreground",
-          });
-        },
-        onError: () => {
-          toast({
-            title: "Publish Failed",
-            description: "Could not publish — backend may be unavailable",
             variant: "destructive",
             className: "font-mono",
           });
@@ -95,7 +66,7 @@ export default function OutputPanel({ signal, isProcessing, onGenerateBrief }: O
     a.click();
     URL.revokeObjectURL(url);
     appendLog.mutate(
-      { data: { message: `Export JSON generated for signal ${signal.id}`, level: "info" } },
+      { data: { message: `Export JSON — signal ${signal.id}`, level: "info" } },
       { onSuccess: () => queryClient.invalidateQueries({ queryKey: getListOpsLogQueryKey() }) },
     );
     toast({
@@ -105,7 +76,44 @@ export default function OutputPanel({ signal, isProcessing, onGenerateBrief }: O
     });
   };
 
-  const isBusy = saveSignal.isPending || publishSignal.isPending;
+  const handleExportCsv = () => {
+    if (!signal) return;
+    const headers = ["id", "title", "classification", "source", "sourceType", "confidence", "engine", "timestamp", "summary", "whyItMatters", "tags", "entities", "systemImpact"];
+    const row = [
+      signal.id,
+      `"${signal.title.replace(/"/g, '""')}"`,
+      signal.classification,
+      `"${(signal.source ?? "").replace(/"/g, '""')}"`,
+      signal.sourceType ?? "",
+      signal.confidence,
+      signal.engine,
+      signal.timestamp,
+      `"${signal.summary.replace(/"/g, '""')}"`,
+      `"${signal.whyItMatters.replace(/"/g, '""')}"`,
+      `"${signal.tags.join("; ")}"`,
+      `"${signal.entities.join("; ")}"`,
+      `"${signal.systemImpact.join("; ")}"`,
+    ];
+    const csv = [headers.join(","), row.join(",")].join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${signal.id}-${Date.now()}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    appendLog.mutate(
+      { data: { message: `Export CSV — signal ${signal.id}`, level: "info" } },
+      { onSuccess: () => queryClient.invalidateQueries({ queryKey: getListOpsLogQueryKey() }) },
+    );
+    toast({
+      title: "CSV Ready",
+      description: `${signal.id}.csv downloaded`,
+      className: "font-mono border-primary bg-background text-foreground",
+    });
+  };
+
+  const isBusy = saveSignal.isPending;
 
   return (
     <div className="glass-panel p-4 flex flex-col gap-4" data-testid="panel-output">
@@ -143,16 +151,6 @@ export default function OutputPanel({ signal, isProcessing, onGenerateBrief }: O
         </Button>
 
         <Button
-          className="w-full justify-start font-mono text-xs bg-primary text-primary-foreground hover:bg-primary/90 h-10 transition-all shadow-[0_0_15px_hsl(var(--primary)/0.2)]"
-          disabled={!signal || isProcessing || isBusy}
-          onClick={handlePublish}
-          data-testid="btn-publish"
-        >
-          <Share className="w-4 h-4 mr-2" />
-          {publishSignal.isPending ? "PUBLISHING..." : "PUBLISH TO SITE"}
-        </Button>
-
-        <Button
           variant="ghost"
           className="w-full justify-start font-mono text-xs text-muted-foreground hover:text-foreground hover:bg-secondary h-10 border border-card-border border-dashed transition-all"
           disabled={!signal || isProcessing}
@@ -161,6 +159,17 @@ export default function OutputPanel({ signal, isProcessing, onGenerateBrief }: O
         >
           <Download className="w-4 h-4 mr-2" />
           EXPORT JSON
+        </Button>
+
+        <Button
+          variant="ghost"
+          className="w-full justify-start font-mono text-xs text-muted-foreground hover:text-foreground hover:bg-secondary h-10 border border-card-border border-dashed transition-all"
+          disabled={!signal || isProcessing}
+          onClick={handleExportCsv}
+          data-testid="btn-export-csv"
+        >
+          <Table2 className="w-4 h-4 mr-2" />
+          EXPORT CSV
         </Button>
       </div>
 

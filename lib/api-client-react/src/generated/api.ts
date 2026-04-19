@@ -27,6 +27,7 @@ import type {
   PublishResult,
   Signal,
   SourceConfig,
+  SystemStatus,
 } from "./api.schemas";
 
 import { customFetch } from "../custom-fetch";
@@ -382,6 +383,140 @@ export const useIngestFile = <
 > => {
   return useMutation(getIngestFileMutationOptions(options));
 };
+
+/**
+ * Fetches all active sources (RSS, market API, contracts API) in parallel and returns normalized signal candidates
+ * @summary Pull all live sources
+ */
+export const getIngestAllUrl = () => {
+  return `/api/ingest/all`;
+};
+
+export const ingestAll = async (options?: RequestInit): Promise<Signal[]> => {
+  return customFetch<Signal[]>(getIngestAllUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getIngestAllQueryKey = () => {
+  return [`/api/ingest/all`] as const;
+};
+
+export const getIngestAllQueryOptions = <
+  TData = Awaited<ReturnType<typeof ingestAll>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof ingestAll>>, TError, TData>;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getIngestAllQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof ingestAll>>> = ({
+    signal,
+  }) => ingestAll({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof ingestAll>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type IngestAllQueryResult = NonNullable<
+  Awaited<ReturnType<typeof ingestAll>>
+>;
+export type IngestAllQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Pull all live sources
+ */
+
+export function useIngestAll<
+  TData = Awaited<ReturnType<typeof ingestAll>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof ingestAll>>, TError, TData>;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getIngestAllQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Returns backend status, Ollama availability, signal count, and last pull time
+ * @summary Get system status
+ */
+export const getGetStatusUrl = () => {
+  return `/api/status`;
+};
+
+export const getStatus = async (
+  options?: RequestInit,
+): Promise<SystemStatus> => {
+  return customFetch<SystemStatus>(getGetStatusUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetStatusQueryKey = () => {
+  return [`/api/status`] as const;
+};
+
+export const getGetStatusQueryOptions = <
+  TData = Awaited<ReturnType<typeof getStatus>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getStatus>>, TError, TData>;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetStatusQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getStatus>>> = ({
+    signal,
+  }) => getStatus({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getStatus>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetStatusQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getStatus>>
+>;
+export type GetStatusQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Get system status
+ */
+
+export function useGetStatus<
+  TData = Awaited<ReturnType<typeof getStatus>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getStatus>>, TError, TData>;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetStatusQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
 
 /**
  * Returns all configured source classes (active, placeholder, inactive)

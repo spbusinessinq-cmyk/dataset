@@ -158,6 +158,13 @@ export interface OpsLogEntryInput {
   level: OpsLogEntryInputLevel;
 }
 
+export interface SystemStatus {
+  backend: string;
+  ollama: string;
+  signalCount: number;
+  lastPullTime?: string | null;
+}
+
 export type IngestRssParams = {
   /**
    * Comma-separated source IDs to fetch (defaults to all active)

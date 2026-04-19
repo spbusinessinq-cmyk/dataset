@@ -146,6 +146,53 @@ export const IngestFileResponseItem = zod.object({
 export const IngestFileResponse = zod.array(IngestFileResponseItem);
 
 /**
+ * Fetches all active sources (RSS, market API, contracts API) in parallel and returns normalized signal candidates
+ * @summary Pull all live sources
+ */
+export const IngestAllResponseItem = zod.object({
+  id: zod.string(),
+  title: zod.string(),
+  classification: zod.enum(["CRITICAL", "ELEVATED", "ROUTINE", "WATCH"]),
+  source: zod.string(),
+  sourceType: zod
+    .enum([
+      "News",
+      "Social",
+      "Document",
+      "Contract",
+      "Dataset",
+      "Filing",
+      "Market",
+      "Manual",
+    ])
+    .optional(),
+  summary: zod.string(),
+  whyItMatters: zod.string(),
+  confidence: zod.number(),
+  tags: zod.array(zod.string()),
+  entities: zod.array(zod.string()),
+  systemImpact: zod.array(zod.string()),
+  engine: zod.string(),
+  timestamp: zod.string(),
+  status: zod
+    .enum(["pulled", "uploaded", "analyzed", "saved", "published"])
+    .optional(),
+  rawText: zod.string().optional(),
+});
+export const IngestAllResponse = zod.array(IngestAllResponseItem);
+
+/**
+ * Returns backend status, Ollama availability, signal count, and last pull time
+ * @summary Get system status
+ */
+export const GetStatusResponse = zod.object({
+  backend: zod.string(),
+  ollama: zod.string(),
+  signalCount: zod.number(),
+  lastPullTime: zod.string().nullish(),
+});
+
+/**
  * Returns all configured source classes (active, placeholder, inactive)
  * @summary List all configured source lanes
  */

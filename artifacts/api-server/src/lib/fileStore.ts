@@ -4,6 +4,9 @@ import { logger } from "./logger";
 
 const DATA_DIR = process.env.DATA_DIR ?? path.resolve(process.cwd(), "data");
 
+const SIGNALS_CAP = 250;
+const OPSLOG_CAP = 500;
+
 function ensureDataDir() {
   if (!fs.existsSync(DATA_DIR)) {
     fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -37,7 +40,6 @@ function writeFile<T>(name: string, data: T): void {
 }
 
 export const feedsDefault = [
-  // ─── NEWS ────────────────────────────────────────────────────────────────
   {
     id: "feed-reuters-world",
     name: "Reuters World Feed",
@@ -55,55 +57,37 @@ export const feedsDefault = [
     category: "News",
   },
   {
-    id: "feed-reuters-biz",
-    name: "Reuters Business Feed",
+    id: "feed-reddit-worldnews",
+    name: "Reddit /r/WorldNews",
     status: "active",
-    description: "Reuters business and financial news wire",
+    description: "Reddit crowd-sourced global news signals",
     sourceType: "RSS",
-    category: "News",
-  },
-
-  // ─── FILINGS ─────────────────────────────────────────────────────────────
-  {
-    id: "feed-sec-edgar",
-    name: "SEC / EDGAR Monitor",
-    status: "placeholder",
-    description: "US Securities filings — 8-K, 10-K, S-1 intake",
-    sourceType: "Filing",
-    category: "Filing",
-  },
-
-  // ─── CONTRACTS ───────────────────────────────────────────────────────────
-  {
-    id: "feed-contracts",
-    name: "Contract Dataset Intake",
-    status: "placeholder",
-    description: "Vendor, procurement, and bilateral agreement intake",
-    sourceType: "Contract",
-    category: "Contract",
-  },
-
-  // ─── MARKET ──────────────────────────────────────────────────────────────
-  {
-    id: "feed-market",
-    name: "Market / Economic Feed",
-    status: "placeholder",
-    description: "FX, commodity, and macro economic indicator stream",
-    sourceType: "Market",
-    category: "Market",
-  },
-
-  // ─── SOCIAL ──────────────────────────────────────────────────────────────
-  {
-    id: "feed-social",
-    name: "Social / Web Monitor",
-    status: "placeholder",
-    description: "Open-source social signal and web trend monitor",
-    sourceType: "Social",
     category: "Social",
   },
-
-  // ─── DATASETS ────────────────────────────────────────────────────────────
+  {
+    id: "feed-sec-edgar",
+    name: "SEC EDGAR 8-K Filings",
+    status: "active",
+    description: "US Securities filings — live 8-K corporate event intake",
+    sourceType: "Atom",
+    category: "Filing",
+  },
+  {
+    id: "feed-coindesk-btc",
+    name: "Coindesk BTC/USD",
+    status: "active",
+    description: "Real-time Bitcoin price index — market signal feed",
+    sourceType: "API",
+    category: "Market",
+  },
+  {
+    id: "feed-usaspending",
+    name: "USAspending.gov Contracts",
+    status: "active",
+    description: "US federal contract awards — live procurement data",
+    sourceType: "API",
+    category: "Contract",
+  },
   {
     id: "feed-datasets",
     name: "Uploaded Dataset Queue",
@@ -124,13 +108,13 @@ export const opsLogDefault = [
   {
     id: "log-002",
     timestamp: new Date(Date.now() - 3 * 60000).toISOString(),
-    message: "Multi-source intake model initialized — News, Filing, Contract, Market, Social, Dataset lanes active",
+    message: "Live source grid online — Reuters, NYT, Reddit, SEC EDGAR, Coindesk, USAspending",
     level: "info",
   },
   {
     id: "log-003",
     timestamp: new Date(Date.now() - 2 * 60000).toISOString(),
-    message: "RSS feeds online — Reuters World, NYT World, Reuters Business",
+    message: "Heuristic analysis engine ready — Ollama optional, fallback active",
     level: "info",
   },
 ];
@@ -140,7 +124,7 @@ export function readSignals() {
 }
 
 export function writeSignals(signals: object[]) {
-  writeFile("signals", signals);
+  writeFile("signals", signals.slice(0, SIGNALS_CAP));
 }
 
 export function readPublished() {
@@ -148,7 +132,7 @@ export function readPublished() {
 }
 
 export function writePublished(published: object[]) {
-  writeFile("published", published);
+  writeFile("published", published.slice(0, SIGNALS_CAP));
 }
 
 export function readFeeds() {
@@ -160,11 +144,11 @@ export function readOpsLog() {
 }
 
 export function writeOpsLog(entries: object[]) {
-  writeFile("opslog", entries);
+  writeFile("opslog", entries.slice(0, OPSLOG_CAP));
 }
 
 export function appendOpsLogEntry(entry: object) {
   const entries = readOpsLog();
   entries.unshift(entry);
-  writeFile("opslog", entries);
+  writeFile("opslog", entries.slice(0, OPSLOG_CAP));
 }
