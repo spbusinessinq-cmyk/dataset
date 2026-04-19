@@ -1,5 +1,31 @@
 [
   {
+    "id": "SG-0010",
+    "title": "How Gen Z Protests Have Fared Around the World",
+    "classification": "ELEVATED",
+    "source": "NYT World",
+    "sourceType": "News",
+    "summary": "How Gen Z Protests Have Fared Around the World. Over the past year or so, young people have rallied across continents to oust old-guard governments.",
+    "whyItMatters": "Developing situation with meaningful downstream risk. Track escalation vectors in this domain.",
+    "confidence": 83,
+    "tags": [
+      "NEWS"
+    ],
+    "entities": [
+      "How",
+      "Gen",
+      "Protests",
+      "Fared",
+      "Around"
+    ],
+    "systemImpact": [
+      "General Intelligence"
+    ],
+    "engine": "Intel Board",
+    "timestamp": "2026-04-19T15:37:35.341Z",
+    "status": "analyzed"
+  },
+  {
     "id": "SG-0009",
     "title": "Iran War Live Updates: Trump Says U",
     "classification": "CRITICAL",

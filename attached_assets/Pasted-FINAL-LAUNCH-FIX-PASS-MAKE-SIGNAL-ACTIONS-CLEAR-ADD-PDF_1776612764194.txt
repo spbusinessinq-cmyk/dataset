@@ -1,0 +1,157 @@
+FINAL LAUNCH FIX PASS — MAKE SIGNAL ACTIONS CLEAR + ADD PDF BRIEF EXPORT
+
+IMPORTANT:
+Do NOT redesign the app.
+Do NOT add major new systems.
+This pass is strictly to make the current workflow clear, understandable, and launch-ready.
+
+MISSION:
+Right now the app works, but signal actions are confusing.
+I need crystal-clear behavior for PULLED / ANALYZED / LOAD / SAVE, and I need briefs to export as PDF.
+
+GOALS:
+1. Make signal movement through the app obvious
+2. Make archive/save behavior obvious
+3. Add real PDF export for generated briefs
+4. Keep Docker/Git launch readiness
+
+==================================================
+1. CLARIFY SIGNAL STATES
+==================================================
+
+Make signal states visually and functionally clear:
+
+PULLED
+- means fetched from live source
+- currently only in intake queue
+- not yet saved to archive
+
+ANALYZED
+- means processed by analysis engine
+- loaded into center analysis panel
+- if saved, should appear in archive
+
+SAVED
+- means written to signals.json
+- visibly indicated in queue and archive
+
+Add clear badges / labels for these states.
+
+==================================================
+2. BUTTON BEHAVIOR MUST BE EXPLICIT
+==================================================
+
+For queue item buttons:
+
+ANALYZE
+- analyze the selected queue item
+- load result into center analysis panel
+- append clear toast:
+  "Signal analyzed"
+- if app auto-saves analyzed items, say so explicitly in toast
+  OR if not auto-saved, do not imply save
+
+LOAD
+- load the selected signal into the center analysis panel without re-analyzing
+- show toast:
+  "Signal loaded into workspace"
+
+SAVE
+- write the currently selected/analyzed signal to signals.json
+- show toast:
+  "Signal saved to archive"
+- button becomes disabled / changed to SAVED
+- archive refreshes immediately
+
+Make sure archive refresh happens right away after save.
+
+==================================================
+3. SELECTED SIGNAL / WORKSPACE CLARITY
+==================================================
+
+Add a visible “Current Workspace Signal” state.
+
+When a signal is loaded or analyzed:
+- highlight it as selected
+- update the center analysis panel
+- update the right-side signal preview
+- visually indicate which signal is active
+
+==================================================
+4. BRIEF PDF EXPORT
+==================================================
+
+Upgrade Generate Brief:
+
+Current behavior:
+- opens formatted brief modal
+
+New required behavior:
+- keep brief modal
+- add buttons:
+  - Copy Brief
+  - Download PDF
+  - Close
+
+PDF export requirements:
+- generate a clean printable brief
+- include:
+  - Headline
+  - Executive Summary
+  - Why It Matters
+  - Key Signals
+  - Entities / Impact
+  - Operator Takeaway
+  - timestamp
+  - source / sourceType
+- filename format:
+  rsr-brief-SG-0008.pdf
+
+Use a lightweight browser PDF approach if possible.
+Do not overbuild with server-side PDF unless necessary.
+
+==================================================
+5. ARCHIVE / QUEUE REFRESH
+==================================================
+
+Ensure:
+- after SAVE, archive updates immediately
+- after ANALYZE, current workspace updates immediately
+- after LOAD, current workspace updates immediately
+- queue item state updates visually
+
+==================================================
+6. SMALL UX FIXES
+==================================================
+
+Add helper copy somewhere subtle:
+- Queue = live pulled signals
+- Archive = saved analyzed signals
+
+No clutter, just enough clarity to teach the workflow.
+
+==================================================
+7. GIT / DEPLOYMENT READINESS
+==================================================
+
+Do not change Docker setup.
+Do not change launch architecture.
+Keep app ready for:
+- GitHub push
+- Portainer stack deployment
+
+At the end, return:
+- exact Git commands to initialize and push to GitHub
+- exact Docker/compose commands still valid
+
+==================================================
+8. DELIVERABLE
+==================================================
+
+Return:
+- updated code
+- note exactly what LOAD does now
+- note exactly what SAVE does now
+- note exactly what ANALYZE does now
+- note where saved signals live
+- note how PDF export works

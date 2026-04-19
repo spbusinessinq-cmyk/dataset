@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Signal } from "@/lib/mock-data";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Inbox, Cpu, Save, X, FolderOpen, Radio, CheckCircle2 } from "lucide-react";
+import { Inbox, Cpu, Save, X, Monitor, Radio, CheckCircle2, Info } from "lucide-react";
 
 interface IntakeQueueProps {
   items: Signal[];
@@ -25,6 +25,13 @@ const SOURCE_TYPE_COLORS: Record<string, string> = {
   Manual:   "text-gray-400 border-gray-400/60 bg-gray-400/10",
 };
 
+const STATE_CONFIG: Record<string, { label: string; color: string; desc: string }> = {
+  pulled:   { label: "PULLED",   color: "text-blue-400",    desc: "Fetched from live source — not yet saved" },
+  analyzed: { label: "ANALYZED", color: "text-primary",     desc: "Processed by analysis engine — saved to archive" },
+  saved:    { label: "SAVED",    color: "text-emerald-400", desc: "Written to signal archive" },
+  uploaded: { label: "UPLOADED", color: "text-amber-400",   desc: "Uploaded via file import" },
+};
+
 function formatTimestamp(iso: string): string {
   try {
     const d = new Date(iso);
@@ -34,7 +41,7 @@ function formatTimestamp(iso: string): string {
   }
 }
 
-type FilterType = "all" | "analyzed" | "pulled" | "saved";
+type FilterType = "all" | "analyzed" | "pulled";
 
 export default function IntakeQueue({
   items,
@@ -48,12 +55,12 @@ export default function IntakeQueue({
   const [filter, setFilter] = useState<FilterType>("all");
 
   const filtered = filter === "all" ? items : items.filter((i) => i.status === filter);
-
   const analyzedCount = items.filter((i) => i.status === "analyzed").length;
   const pulledCount   = items.filter((i) => i.status === "pulled").length;
 
   return (
     <div className="glass-panel p-4 flex flex-col gap-3" data-testid="panel-intake-queue">
+
       {/* Header */}
       <div className="flex items-center justify-between border-b border-card-border pb-2">
         <div className="flex items-center gap-2 flex-wrap">
@@ -62,7 +69,7 @@ export default function IntakeQueue({
             {items.length} PENDING
           </span>
           {analyzedCount > 0 && (
-            <span className="font-mono text-[10px] text-emerald-400 border border-emerald-400/30 rounded px-1.5 py-0.5">
+            <span className="font-mono text-[10px] text-primary border border-primary/30 rounded px-1.5 py-0.5">
               {analyzedCount} ANALYZED
             </span>
           )}
@@ -73,6 +80,17 @@ export default function IntakeQueue({
           )}
         </div>
         <Inbox className="w-4 h-4 text-muted-foreground shrink-0" />
+      </div>
+
+      {/* Workflow legend */}
+      <div className="flex items-center gap-1.5 px-1 py-1 bg-secondary/30 rounded border border-card-border/60">
+        <Info className="w-3 h-3 text-muted-foreground/60 shrink-0" />
+        <span className="font-mono text-[9px] text-muted-foreground/70">
+          Queue = live pulled, unprocessed signals &nbsp;·&nbsp; Archive = analyzed + saved signals &nbsp;·&nbsp;
+          <span className="text-blue-400">PULLED</span> →{" "}
+          <span className="text-primary">ANALYZED</span> →{" "}
+          <span className="text-emerald-400">SAVED</span>
+        </span>
       </div>
 
       {/* Filter tabs */}
@@ -101,41 +119,40 @@ export default function IntakeQueue({
             <Radio className="w-4 h-4 text-muted-foreground/40" />
           </div>
           <div className="flex flex-col items-center gap-1 text-center">
-            <span className="font-mono text-xs text-muted-foreground tracking-widest">
-              No live signals loaded yet.
-            </span>
-            <span className="font-mono text-[10px] text-muted-foreground/50">
-              Pull signals to begin.
-            </span>
+            <span className="font-mono text-xs text-muted-foreground tracking-widest">No live signals loaded yet.</span>
+            <span className="font-mono text-[10px] text-muted-foreground/50">Pull signals to begin.</span>
           </div>
         </div>
       ) : filtered.length === 0 ? (
         <div className="flex items-center justify-center py-4">
-          <span className="font-mono text-[10px] text-muted-foreground/50">
-            No items match filter.
-          </span>
+          <span className="font-mono text-[10px] text-muted-foreground/50">No items match filter.</span>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2 max-h-[380px] overflow-y-auto pr-1">
           {filtered.map((item) => {
-            const isSaved = savedIds?.has(item.id) || item.status === "saved";
+            const isSaved    = savedIds?.has(item.id) || item.status === "saved";
             const isAnalyzed = item.status === "analyzed";
+            const stateConf  = STATE_CONFIG[item.status ?? "pulled"] ?? STATE_CONFIG["pulled"];
 
             return (
               <div
                 key={item.id}
                 className={`border rounded p-3 flex flex-col gap-2 transition-colors ${
-                  isAnalyzed
-                    ? "border-primary/30 bg-primary/5"
-                    : isSaved
-                    ? "border-emerald-400/20 bg-emerald-400/5"
-                    : "border-card-border/60 bg-background/40"
+                  isAnalyzed ? "border-primary/30 bg-primary/5" :
+                  isSaved    ? "border-emerald-400/20 bg-emerald-400/5" :
+                               "border-card-border/60 bg-background/40"
                 }`}
                 data-testid={`queue-item-${item.id}`}
               >
-                {/* Top row: badges + dismiss */}
+                {/* Top row: state badge + source type + dismiss */}
                 <div className="flex items-start gap-2">
                   <div className="flex gap-1.5 flex-wrap flex-1 min-w-0">
+                    {/* State badge — most prominent */}
+                    <span className={`font-mono text-[8px] font-bold flex items-center gap-0.5 ${stateConf.color}`}>
+                      {isAnalyzed || isSaved ? <CheckCircle2 className="w-2.5 h-2.5" /> : null}
+                      {stateConf.label}
+                    </span>
+
                     {item.sourceType && (
                       <Badge
                         variant="outline"
@@ -146,7 +163,8 @@ export default function IntakeQueue({
                         {item.sourceType}
                       </Badge>
                     )}
-                    {item.classification && (
+
+                    {item.classification && isAnalyzed && (
                       <Badge
                         variant="outline"
                         className={`font-mono text-[8px] px-1.5 py-0 rounded-sm border uppercase shrink-0 ${
@@ -159,21 +177,11 @@ export default function IntakeQueue({
                         {item.classification}
                       </Badge>
                     )}
-                    {isAnalyzed && (
-                      <span className="font-mono text-[8px] text-primary flex items-center gap-0.5">
-                        <CheckCircle2 className="w-2.5 h-2.5" /> ANALYZED
-                      </span>
-                    )}
-                    {isSaved && !isAnalyzed && (
-                      <span className="font-mono text-[8px] text-emerald-400 flex items-center gap-0.5">
-                        <CheckCircle2 className="w-2.5 h-2.5" /> SAVED
-                      </span>
-                    )}
                   </div>
                   <button
                     className="text-muted-foreground/40 hover:text-destructive transition-colors shrink-0 mt-0.5"
                     onClick={() => onDismiss(item.id)}
-                    title="Dismiss"
+                    title="Dismiss from queue"
                   >
                     <X className="w-3 h-3" />
                   </button>
@@ -204,44 +212,57 @@ export default function IntakeQueue({
                   </p>
                 )}
 
-                {/* Actions */}
-                <div className="flex gap-1 flex-wrap mt-auto">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-6 px-2 font-mono text-[9px] border-primary/30 bg-background hover:bg-primary/10 text-primary gap-1"
-                    onClick={() => onAnalyze(item)}
-                    disabled={isAnalyzing}
-                    title="Analyze this signal"
-                  >
-                    <Cpu className="w-2.5 h-2.5" />
-                    ANALYZE
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-6 px-2 font-mono text-[9px] border-card-border bg-background hover:bg-secondary text-muted-foreground gap-1"
-                    onClick={() => onLoad(item)}
-                    title="Load into manual ingest"
-                  >
-                    <FolderOpen className="w-2.5 h-2.5" />
-                    LOAD
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className={`h-6 px-2 font-mono text-[9px] gap-1 border-card-border bg-background transition-colors ${
-                      isSaved
-                        ? "text-emerald-400 border-emerald-400/30 cursor-default"
-                        : "text-muted-foreground hover:bg-secondary"
-                    }`}
-                    onClick={() => !isSaved && onSave(item)}
-                    disabled={isSaved}
-                    title={isSaved ? "Already saved" : "Save to archive"}
-                  >
-                    <Save className="w-2.5 h-2.5" />
-                    {isSaved ? "SAVED" : "SAVE"}
-                  </Button>
+                {/* Action buttons with descriptions */}
+                <div className="flex flex-col gap-1.5 mt-auto">
+                  <div className="flex gap-1 flex-wrap">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-7 px-2 font-mono text-[9px] border-primary/30 bg-background hover:bg-primary/10 text-primary gap-1"
+                      onClick={() => onAnalyze(item)}
+                      disabled={isAnalyzing}
+                      title="Run analysis engine on this signal — result loads into workspace and is auto-saved to archive"
+                    >
+                      <Cpu className="w-2.5 h-2.5" />
+                      ANALYZE
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-7 px-2 font-mono text-[9px] border-card-border bg-background hover:bg-secondary text-muted-foreground gap-1"
+                      onClick={() => onLoad(item)}
+                      title="Load this signal into workspace panel without re-analyzing"
+                    >
+                      <Monitor className="w-2.5 h-2.5" />
+                      LOAD
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className={`h-7 px-2 font-mono text-[9px] gap-1 border-card-border bg-background transition-colors ${
+                        isSaved
+                          ? "text-emerald-400 border-emerald-400/30 cursor-default"
+                          : "text-muted-foreground hover:bg-secondary"
+                      }`}
+                      onClick={() => !isSaved && onSave(item)}
+                      disabled={isSaved}
+                      title={isSaved ? "Already saved to archive" : "Write this signal to archive (signals.json)"}
+                    >
+                      <Save className="w-2.5 h-2.5" />
+                      {isSaved ? "SAVED" : "SAVE"}
+                    </Button>
+                  </div>
+
+                  {/* Micro action descriptions */}
+                  <div className="font-mono text-[8px] text-muted-foreground/50 leading-tight px-0.5">
+                    {isAnalyzing ? (
+                      <span className="text-primary/70">Analyzing — standby...</span>
+                    ) : isAnalyzed ? (
+                      <span>Analyzed + auto-saved to archive · LOAD to view · SAVE if not yet archived</span>
+                    ) : (
+                      <span>ANALYZE → runs engine · LOAD → view as-is · SAVE → archive raw</span>
+                    )}
+                  </div>
                 </div>
               </div>
             );

@@ -81,6 +81,18 @@ lib/
   api-client-react/  Generated React Query client
 ```
 
+## Git Setup
+
+```bash
+# Initialize and push to GitHub
+git init
+git add .
+git commit -m "feat: RSR Data Hub v1.0.0 — initial launch"
+git branch -M main
+git remote add origin https://github.com/YOUR_ORG/rsr-data-hub.git
+git push -u origin main
+```
+
 ## Non-blocking Limitations
 
 - Coindesk BTC/USD API may return 0 items in some network environments (blocked external call) — handled gracefully

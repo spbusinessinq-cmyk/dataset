@@ -356,17 +356,17 @@ export default function Hub() {
   }, []);
 
   const handleQueueLoad = useCallback((signal: Signal) => {
-    setRawText(signal.rawText ?? signal.summary ?? "");
-    setSource(signal.source);
-    if (signal.sourceType) setSourceType(signal.sourceType);
+    // LOAD: puts signal directly into the analysis workspace (center panel)
+    // without re-analyzing. Does NOT call the analysis engine.
+    setCurrentSignal(signal);
     removeFromQueue(signal.id);
     toast({
-      title: "Signal Loaded",
-      description: "Paste area populated — ready to run analysis",
+      title: "Signal Loaded into Workspace",
+      description: `${signal.id} — ${signal.source} · No re-analysis performed`,
       className: "font-mono border-primary bg-background text-foreground",
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [toast]);
 
   // ── Signal archive click → load into analysis panel ────────────────────
 
