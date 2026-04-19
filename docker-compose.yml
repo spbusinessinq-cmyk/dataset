@@ -1,31 +1,19 @@
+version: "3.8"
+
 services:
   app:
-    build: .
+    build:
+      context: .
+    container_name: rsr-data-hub
+    restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
       NODE_ENV: production
-      PORT: 3000
-      DATA_DIR: /app/data
-      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://ollama:11434}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://192.168.12.228:11434}
       OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.2:3b}
     volumes:
       - rsr_data:/app/data
-    depends_on:
-      ollama:
-        condition: service_started
-    restart: unless-stopped
-
-  ollama:
-    image: ollama/ollama:latest
-    ports:
-      - "11434:11434"
-    volumes:
-      - ollama_models:/root/.ollama
-    restart: unless-stopped
-    profiles:
-      - ollama
 
 volumes:
   rsr_data:
-  ollama_models:
