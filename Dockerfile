@@ -10,8 +10,7 @@ COPY lib/api-client-react/package.json lib/api-client-react/
 COPY lib/api-zod/package.json lib/api-zod/
 COPY artifacts/api-server/package.json artifacts/api-server/
 COPY artifacts/rsr-data-hub/package.json artifacts/rsr-data-hub/
-RUN pnpm install --frozen-lockfile
-
+RUN pnpm install --no-frozen-lockfile
 # ── Build everything ──────────────────────────────────────────────────────────
 FROM deps AS builder
 COPY . .
