@@ -1,7 +1,8 @@
+// Signal type — shared across the app
 export type Signal = {
   id: string;
   title: string;
-  classification: "CRITICAL" | "ELEVATED" | "ROUTINE";
+  classification: "CRITICAL" | "ELEVATED" | "ROUTINE" | "WATCH";
   source: string;
   summary: string;
   whyItMatters: string;
@@ -13,35 +14,50 @@ export type Signal = {
   systemImpact: string[];
 };
 
-export const MOCK_SIGNAL: Signal = {
-  id: "SG-0043",
-  title: "PRC Export Controls on Advanced Semiconductors — Second Wave",
-  classification: "CRITICAL",
-  source: "Reuters World / OSINT",
-  summary: "China has announced a second round of export restrictions targeting advanced semiconductor manufacturing equipment, effective Q3 2025. The controls expand on 2023 measures and directly implicate US-listed firms operating joint ventures in the Yangtze River Delta.",
-  whyItMatters: "The restrictions will accelerate decoupling timelines and force affected firms to restructure supply chains within 90 days. US Commerce Department expected to respond with counter-measures.",
-  confidence: 87,
-  tags: ["SUPPLY CHAIN", "GEOPOLITICAL", "SEMICONDUCTOR", "TRADE"],
-  entities: ["People's Republic of China", "US Commerce Dept", "ASML", "Applied Materials", "Yangtze River Delta"],
-  engine: "AXION",
-  timestamp: "2025-04-19T04:17:00Z",
-  systemImpact: ["Market Risk", "Regulatory Compliance", "National Security", "Supply Chain Disruption"]
-};
-
-export const RECENT_SIGNALS = [
-  { id: "SG-0042", title: "Fed Signals Extended Hold — Mortgage Market Impact", engine: "SAGE", classification: "ELEVATED", confidence: 79, timestamp: "Apr 19 04:11" },
-  { id: "SG-0041", title: "NATO Emergency Session Called — Nordic Theater", engine: "Intel Board", classification: "CRITICAL", confidence: 93, timestamp: "Apr 19 03:58" },
-  { id: "SG-0040", title: "SEC Investigation: Algorithmic Trading Irregularities", engine: "Sentrix", classification: "ELEVATED", confidence: 81, timestamp: "Apr 19 03:44" },
-  { id: "SG-0039", title: "OpenAI Government Contract: $600M DoD Partnership", engine: "AXION", classification: "ROUTINE", confidence: 74, timestamp: "Apr 19 03:30" },
-  { id: "SG-0038", title: "Brazilian Real Flash Crash — Central Bank Intervention", engine: "SAGE", classification: "ELEVATED", confidence: 88, timestamp: "Apr 19 03:12" },
-];
-
-export const ACTIVE_FEEDS = [
-  { name: "Reuters World Feed", status: "ACTIVE" },
-  { name: "OSINT Monitor v2", status: "ACTIVE" },
-  { name: "SEC EDGAR Filings", status: "INDEXING" },
-  { name: "Dark Web Signals", status: "INACTIVE" },
-  { name: "Custom Dataset: trade_2025.csv", status: "ACTIVE" },
+// Fallback mock data used when backend is unavailable
+export const FALLBACK_SIGNALS: Signal[] = [
+  {
+    id: "SG-0005",
+    title: "Fed Signals Extended Hold — Mortgage Market Impact",
+    classification: "ELEVATED",
+    source: "Reuters",
+    summary: "Federal Reserve signals extended hold on rate cuts, impacting mortgage and bond markets.",
+    whyItMatters: "Prolonged high rates will suppress housing demand and increase refinancing risk.",
+    confidence: 79,
+    tags: ["MARKETS", "POLICY"],
+    entities: ["Federal Reserve", "Treasury"],
+    systemImpact: ["Market Risk", "Regulatory Compliance"],
+    engine: "SAGE",
+    timestamp: "2026-04-19T04:11:00Z",
+  },
+  {
+    id: "SG-0004",
+    title: "NATO Emergency Session Called — Nordic Theater",
+    classification: "CRITICAL",
+    source: "OSINT",
+    summary: "NATO convenes emergency session over escalating tensions in the Nordic theater.",
+    whyItMatters: "Article 5 activation risk increases with each unresolved provocation.",
+    confidence: 93,
+    tags: ["CONFLICT", "GEOPOLITICAL"],
+    entities: ["NATO", "Norway", "Finland"],
+    systemImpact: ["National Security", "Energy Supply"],
+    engine: "Intel Board",
+    timestamp: "2026-04-19T03:58:00Z",
+  },
+  {
+    id: "SG-0003",
+    title: "SEC Investigation: Algorithmic Trading Irregularities",
+    classification: "ELEVATED",
+    source: "SEC EDGAR",
+    summary: "SEC opens formal investigation into pattern of algorithmic front-running across multiple broker-dealers.",
+    whyItMatters: "Potential market-wide liquidity risk if key participants face trading suspensions.",
+    confidence: 81,
+    tags: ["POLICY", "MARKETS"],
+    entities: ["SEC", "Citadel", "Virtu Financial"],
+    systemImpact: ["Regulatory Compliance", "Market Risk"],
+    engine: "Sentrix",
+    timestamp: "2026-04-19T03:44:00Z",
+  },
 ];
 
 export const SYSTEM_METRICS = {
@@ -49,14 +65,10 @@ export const SYSTEM_METRICS = {
   signalsProcessed: "1,247",
   queueDepth: 3,
   avgConfidence: "83%",
-  storageUsed: "2.4 GB / 10 GB"
+  storageUsed: "2.4 GB / 10 GB",
 };
 
-export const INITIAL_LOGS = [
-  "[04:16:55] New signal ingested from Reuters World Feed — classified ELEVATED",
-  "[04:16:20] Dataset trade_2025.csv successfully indexed (12,847 records)",
-  "[04:15:44] System self-check passed — all engines nominal",
-  "[04:15:01] Publish request sent for signal #SG-0039 — pending review",
-  "[04:12:30] Sentrix engine updated to v2.4.1",
-  "[04:10:15] Routine database backup completed"
+export const FALLBACK_LOGS = [
+  "[SYSTEM] Using local fallback — backend connection unavailable",
+  "[INFO] RSR Data Hub initialized in degraded mode",
 ];

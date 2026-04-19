@@ -3,13 +3,24 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: RSR Data Hub API specification
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: analyze
+    description: Signal analysis
+  - name: signals
+    description: Saved signals
+  - name: feeds
+    description: Data feeds
+  - name: opslog
+    description: Operations log
+  - name: publish
+    description: Publishing
+
 paths:
   /healthz:
     get:
@@ -24,6 +35,131 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /analyze:
+    post:
+      operationId: analyzeSignal
+      tags: [analyze]
+      summary: Analyze a raw signal
+      description: Sends raw text to Ollama (or fallback heuristic) and returns structured intelligence analysis
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnalyzeRequest"
+      responses:
+        "200":
+          description: Analysis result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Signal"
+
+  /signals:
+    get:
+      operationId: listSignals
+      tags: [signals]
+      summary: List all saved signals
+      description: Returns all saved signals, newest first
+      responses:
+        "200":
+          description: List of signals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Signal"
+    post:
+      operationId: saveSignal
+      tags: [signals]
+      summary: Save a signal
+      description: Persists a signal to local storage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Signal"
+      responses:
+        "201":
+          description: Signal saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Signal"
+
+  /publish:
+    post:
+      operationId: publishSignal
+      tags: [publish]
+      summary: Publish a signal
+      description: Appends a signal to the published list
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Signal"
+      responses:
+        "200":
+          description: Published successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublishResult"
+
+  /feeds:
+    get:
+      operationId: listFeeds
+      tags: [feeds]
+      summary: List active data feeds
+      description: Returns feed/dataset list from local storage
+      responses:
+        "200":
+          description: List of feeds
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Feed"
+
+  /opslog:
+    get:
+      operationId: listOpsLog
+      tags: [opslog]
+      summary: Get ops log entries
+      description: Returns operations log entries, newest first
+      responses:
+        "200":
+          description: Ops log entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OpsLogEntry"
+    post:
+      operationId: appendOpsLog
+      tags: [opslog]
+      summary: Append an ops log entry
+      description: Adds a new entry to the ops log
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpsLogEntryInput"
+      responses:
+        "201":
+          description: Entry appended
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpsLogEntry"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +170,126 @@ components:
       required:
         - status
 
+    AnalyzeRequest:
+      type: object
+      properties:
+        rawText:
+          type: string
+        sourceType:
+          type: string
+        engine:
+          type: string
+        source:
+          type: string
+      required:
+        - rawText
+        - sourceType
+        - engine
+        - source
+
+    Signal:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        classification:
+          type: string
+          enum: [CRITICAL, ELEVATED, ROUTINE, WATCH]
+        source:
+          type: string
+        summary:
+          type: string
+        whyItMatters:
+          type: string
+        confidence:
+          type: integer
+        tags:
+          type: array
+          items:
+            type: string
+        entities:
+          type: array
+          items:
+            type: string
+        systemImpact:
+          type: array
+          items:
+            type: string
+        engine:
+          type: string
+        timestamp:
+          type: string
+      required:
+        - id
+        - title
+        - classification
+        - source
+        - summary
+        - whyItMatters
+        - confidence
+        - tags
+        - entities
+        - systemImpact
+        - engine
+        - timestamp
+
+    PublishResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      required:
+        - success
+        - message
+
+    Feed:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+          enum: [active, indexing, inactive]
+        description:
+          type: string
+      required:
+        - id
+        - name
+        - status
+        - description
+
+    OpsLogEntry:
+      type: object
+      properties:
+        id:
+          type: string
+        timestamp:
+          type: string
+        message:
+          type: string
+        level:
+          type: string
+          enum: [info, warn, error]
+      required:
+        - id
+        - timestamp
+        - message
+        - level
+
+    OpsLogEntryInput:
+      type: object
+      properties:
+        message:
+          type: string
+        level:
+          type: string
+          enum: [info, warn, error]
+      required:
+        - message
+        - level

@@ -1,0 +1,233 @@
+PASS 2 / CORE EXECUTION PASS — TURN RSR DATA HUB INTO A REAL LOCAL APP
+
+IMPORTANT:
+Keep the current UI, layout, and styling as close to current as possible.
+Do NOT redesign the app unless required for clean functionality.
+The current look is already correct directionally.
+
+MISSION:
+Convert the current RSR Data Hub from a frontend mock shell into a working full-stack local app.
+
+CORE GOAL:
+When I paste a signal and click RUN ANALYSIS, the app should:
+1. send the input to a backend
+2. analyze it using local Ollama if available
+3. return structured JSON
+4. render the result in the analysis panel
+5. update signal preview
+6. save signals locally
+7. reload saved signals on refresh
+8. allow exporting JSON
+9. allow “Publish to Site” to generate a publish-ready file
+
+STACK:
+- React + Vite frontend
+- Tailwind or current styling system already used
+- Node/Express backend
+- Local file-based persistence only for now
+- No cloud services
+- No auth
+- No database dependency unless absolutely needed
+- Must run locally and be Docker-ready later
+
+REQUIREMENTS:
+
+1. BACKEND
+Create a lightweight Express backend.
+
+Required endpoints:
+
+GET /api/health
+- return simple status JSON
+
+POST /api/analyze
+- accept JSON:
+{
+  "rawText": "...",
+  "sourceType": "News",
+  "engine": "AXION",
+  "source": ""
+}
+- try to call local Ollama first
+- Ollama endpoint should be configurable
+- default to:
+  http://localhost:11434
+- if running in Docker later, make endpoint easy to change via env var
+
+Use model:
+llama3.2:3b
+
+Prompt Ollama to return structured intelligence output with:
+- title
+- classification
+- summary
+- whyItMatters
+- confidence
+- tags
+- entities
+- systemImpact
+- engine
+- timestamp
+
+If Ollama fails or is unavailable:
+- gracefully fall back to backend-generated heuristic analysis
+- do NOT break the app
+- still return a dynamic structured response based on input text
+
+Output format from /api/analyze:
+{
+  "id": "SG-0043",
+  "title": "Generated title here",
+  "classification": "ELEVATED",
+  "summary": "2-3 sentence summary here.",
+  "whyItMatters": "Why this matters here.",
+  "confidence": 84,
+  "tags": ["Conflict", "Markets", "Policy"],
+  "entities": ["Iran", "Strait of Hormuz", "United States"],
+  "systemImpact": ["Economy", "Conflict", "Energy"],
+  "engine": "AXION",
+  "timestamp": "2026-04-19T06:45:00Z"
+}
+
+2. LOCAL PERSISTENCE
+Create local file-based storage.
+
+Use a data directory like:
+- /data/signals.json
+- /data/published.json
+- /data/feeds.json
+- /data/opslog.json
+
+If files do not exist, initialize them automatically.
+
+Required endpoints:
+
+GET /api/signals
+- return all saved signals, newest first
+
+POST /api/signals
+- save a signal object
+
+POST /api/publish
+- accept a signal
+- append it to published.json
+- return success
+
+GET /api/feeds
+- return feed/dataset list from feeds.json
+
+POST /api/export
+- accept a signal and return downloadable JSON response
+OR implement frontend export without endpoint if cleaner
+
+GET /api/opslog
+- return ops log entries
+
+POST /api/opslog
+- append log entry
+
+3. FRONTEND FUNCTIONALITY
+Keep the current UI structure.
+
+Wire up:
+
+A. RUN ANALYSIS
+- call /api/analyze
+- show loading / processing state
+- populate ANALYSIS RESULT panel with real returned data
+- update SIGNAL PREVIEW panel
+- prepend returned signal into RECENT SIGNALS table in UI
+- also save returned signal via /api/signals
+- append ops log entry
+
+B. SAVE SIGNAL
+- explicitly save current signal if not already saved
+- toast feedback
+
+C. GENERATE BRIEF
+- for this pass, create a formatted text brief from the current signal in a modal or side preview
+- keep simple but real
+- do not overbuild
+
+D. PUBLISH TO SITE
+- send current signal to /api/publish
+- show success toast
+- append ops log entry
+
+E. EXPORT JSON
+- download current signal as .json file
+
+4. APP STARTUP
+On page load:
+- fetch saved signals from /api/signals
+- populate RECENT SIGNALS
+- fetch feeds from /api/feeds
+- fetch ops log from /api/opslog
+- show system online if backend health passes
+- if backend health fails, show degraded state but keep frontend usable
+
+5. FEEDS / DATASETS
+Replace hardcoded feeds list with local feeds.json-driven data.
+Seed it with:
+- Reuters World Feed
+- OSINT Monitor v2
+- SEC EDGAR Filings
+- Dark Web Signals
+- Custom Dataset: trade_2025.csv
+
+Use status fields like:
+- active
+- indexing
+- inactive
+
+6. OPS LOG
+Replace or enhance mock log with real local entries:
+Examples:
+- analysis requested
+- analysis completed
+- signal saved
+- signal published
+- export generated
+
+Newest entries first.
+
+7. CLASSIFICATION / BADGES
+Support:
+- CRITICAL
+- ELEVATED
+- ROUTINE
+- WATCH
+
+Keep existing badge style.
+
+8. CODE QUALITY
+- keep project clean
+- separate frontend/backend clearly
+- include comments
+- avoid overengineering
+- make Dockerization easy later
+
+9. OLLAMA INTEGRATION
+Make Ollama base URL configurable via env var:
+OLLAMA_BASE_URL
+
+Default:
+http://localhost:11434
+
+Model configurable via:
+OLLAMA_MODEL=llama3.2:3b
+
+Use a clear backend service layer for Ollama calls so I can swap models later.
+
+10. DELIVERABLE
+Return:
+- full project structure
+- all updated code
+- setup instructions
+- exact run instructions for frontend + backend
+- note where local data files live
+
+IMPORTANT:
+This is a serious operator tool, not a concept mockup.
+Do not redesign the interface.
+Focus on turning the current app into a real working local intelligence surface in one pass.

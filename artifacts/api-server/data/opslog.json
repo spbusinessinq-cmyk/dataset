@@ -1,0 +1,20 @@
+[
+  {
+    "id": "log-001",
+    "timestamp": "2026-04-19T06:57:56.958Z",
+    "message": "System self-check passed — all engines nominal",
+    "level": "info"
+  },
+  {
+    "id": "log-002",
+    "timestamp": "2026-04-19T06:58:56.958Z",
+    "message": "Dataset trade_2025.csv successfully indexed (12,847 records)",
+    "level": "info"
+  },
+  {
+    "id": "log-003",
+    "timestamp": "2026-04-19T06:59:56.958Z",
+    "message": "New signal ingested from Reuters World Feed — classified ELEVATED",
+    "level": "info"
+  }
+]

@@ -1,0 +1,32 @@
+[
+  {
+    "id": "feed-001",
+    "name": "Reuters World Feed",
+    "status": "active",
+    "description": "Global newswire — real-time geopolitical and market events"
+  },
+  {
+    "id": "feed-002",
+    "name": "OSINT Monitor v2",
+    "status": "active",
+    "description": "Open-source intelligence aggregator across public channels"
+  },
+  {
+    "id": "feed-003",
+    "name": "SEC EDGAR Filings",
+    "status": "indexing",
+    "description": "US Securities and Exchange Commission filing database"
+  },
+  {
+    "id": "feed-004",
+    "name": "Dark Web Signals",
+    "status": "inactive",
+    "description": "Monitored dark-web forums and markets — manual trigger only"
+  },
+  {
+    "id": "feed-005",
+    "name": "Custom Dataset: trade_2025.csv",
+    "status": "active",
+    "description": "Uploaded trade flow dataset — Q1-Q2 2025"
+  }
+]
