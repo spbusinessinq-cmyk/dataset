@@ -1,19 +1,26 @@
-version: "3.8"
-
 services:
   app:
     build:
-      context: .
+      context: /DATA/AppData/rsr-data-hub-src
     container_name: rsr-data-hub
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "3000:4173"
     environment:
       NODE_ENV: production
-      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://192.168.12.228:11434}
-      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.2:3b}
+      OLLAMA_BASE_URL: http://192.168.12.228:11434
+      OLLAMA_MODEL: llama3.2:3b
     volumes:
-      - rsr_data:/app/data
-
-volumes:
-  rsr_data:
+      - /DATA/AppData/rsr-data-hub:/app/data
+    command: >
+      sh -c "
+      corepack enable &&
+      corepack prepare pnpm@9 --activate &&
+      pnpm install --no-frozen-lockfile &&
+      pnpm --filter @workspace/api-spec run build 2>/dev/null || true &&
+      pnpm --filter @workspace/api-zod run build &&
+      pnpm --filter @workspace/api-client-react run build &&
+      pnpm --filter @workspace/rsr-data-hub run build &&
+      pnpm --filter @workspace/api-server run build &&
+      pnpm --filter @workspace/rsr-data-hub run preview -- --host 0.0.0.0 --port 4173
+      "
