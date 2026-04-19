@@ -301,7 +301,7 @@ export default function IngestPanel({
           <div className="flex flex-col gap-2 mt-auto">
             <Button
               className="w-full font-mono font-bold tracking-widest border border-primary/50 hover:bg-primary/20 bg-background text-primary"
-              onClick={() => onPullLive(selectedSources)}
+              onClick={() => typeof onPullLive === "function" && onPullLive(selectedSources)}
               disabled={isPulling || selectedSources.length === 0}
               data-testid="btn-pull-live"
             >
