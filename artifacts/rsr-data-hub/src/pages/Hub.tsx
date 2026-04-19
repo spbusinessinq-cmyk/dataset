@@ -7,6 +7,7 @@ import {
   useListSignals,
   useListFeeds,
   useListOpsLog,
+  useIngestSignals,
   getListSignalsQueryKey,
   getListOpsLogQueryKey,
 } from "@workspace/api-client-react";
@@ -46,6 +47,9 @@ export default function Hub() {
   });
   const { data: opsLogData, isLoading: opsLogLoading } = useListOpsLog({
     query: { staleTime: 5000 },
+  });
+  const { refetch: runIngest, isFetching: isPulling } = useIngestSignals({
+    query: { enabled: false, staleTime: 0 },
   });
 
   // API hooks — mutations
@@ -129,6 +133,26 @@ export default function Hub() {
     );
   }, [rawText, source, sourceType, engine, analyzeSignal, saveSignal, appendLog, queryClient, toast]);
 
+  const handlePullLive = useCallback(async () => {
+    toast({
+      title: "RSS Ingest Started",
+      description: "Fetching live signals from Reuters and NYT...",
+      className: "font-mono",
+    });
+
+    const { data } = await runIngest();
+    const pulled = (data ?? []) as Signal[];
+
+    queryClient.invalidateQueries({ queryKey: getListSignalsQueryKey() });
+    queryClient.invalidateQueries({ queryKey: getListOpsLogQueryKey() });
+
+    toast({
+      title: "Ingest Complete",
+      description: `${pulled.length} live signal${pulled.length !== 1 ? "s" : ""} ingested`,
+      className: "font-mono",
+    });
+  }, [runIngest, queryClient, toast]);
+
   const isProcessing = analyzeSignal.isPending;
 
   return (
@@ -158,7 +182,12 @@ export default function Hub() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         <div className="lg:col-span-7 xl:col-span-8">
-          <RecentSignals signals={signals} isLoading={signalsLoading} />
+          <RecentSignals
+            signals={signals}
+            isLoading={signalsLoading}
+            isPulling={isPulling}
+            onPullLive={handlePullLive}
+          />
         </div>
         <div className="lg:col-span-5 xl:col-span-4 flex flex-col gap-4">
           <ActiveFeeds feeds={feeds} isLoading={feedsLoading} />

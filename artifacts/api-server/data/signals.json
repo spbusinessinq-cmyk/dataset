@@ -1,1 +1,102 @@
-[]
+[
+  {
+    "id": "SG-0001",
+    "title": "What to Know About the Bulgarian Election",
+    "classification": "WATCH",
+    "source": "NYT",
+    "summary": "The Black Sea country is holding its eighth election in five years, with Bulgarians yearning for the kind of prosperous life enjoyed by other Europeans.",
+    "whyItMatters": "Live signal from NYT — requires review and classification by analyst.",
+    "confidence": 61,
+    "tags": [
+      "NYT",
+      "RSS",
+      "LIVE"
+    ],
+    "entities": [],
+    "systemImpact": [
+      "Monitoring"
+    ],
+    "engine": "INGEST",
+    "timestamp": "2026-04-19T04:01:06.000Z"
+  },
+  {
+    "id": "SG-0002",
+    "title": "Tensions Rise in Strait of Hormuz Over Ship Attacks and Iranian Threats",
+    "classification": "WATCH",
+    "source": "NYT",
+    "summary": "Iran’s Revolutionary Guards said they were closing the strait until the U.S. blockade is lifted. Two ships reported being hit as they tried to pass through the strait.",
+    "whyItMatters": "Live signal from NYT — requires review and classification by analyst.",
+    "confidence": 60,
+    "tags": [
+      "NYT",
+      "RSS",
+      "LIVE"
+    ],
+    "entities": [],
+    "systemImpact": [
+      "Monitoring"
+    ],
+    "engine": "INGEST",
+    "timestamp": "2026-04-19T06:27:52.000Z"
+  },
+  {
+    "id": "SG-0003",
+    "title": "U.S. Officials Visited Havana to Lay Out Proposals for Cuban Reforms",
+    "classification": "WATCH",
+    "source": "NYT",
+    "summary": "The delegation told Cuba’s leadership that it had only a narrow window of time to make the economic and political changes demanded by the Trump administration.",
+    "whyItMatters": "Live signal from NYT — requires review and classification by analyst.",
+    "confidence": 67,
+    "tags": [
+      "NYT",
+      "RSS",
+      "LIVE"
+    ],
+    "entities": [],
+    "systemImpact": [
+      "Monitoring"
+    ],
+    "engine": "INGEST",
+    "timestamp": "2026-04-18T20:17:15.000Z"
+  },
+  {
+    "id": "SG-0004",
+    "title": "Kyiv Mass Shooting Kills 6 and Gunman Is Shot Dead After Taking Hostages in Grocery",
+    "classification": "WATCH",
+    "source": "NYT",
+    "summary": "It was the deadliest mass shooting in Ukraine in years, where firearms have proliferated since the war with Russia began.",
+    "whyItMatters": "Live signal from NYT — requires review and classification by analyst.",
+    "confidence": 62,
+    "tags": [
+      "NYT",
+      "RSS",
+      "LIVE"
+    ],
+    "entities": [],
+    "systemImpact": [
+      "Monitoring"
+    ],
+    "engine": "INGEST",
+    "timestamp": "2026-04-18T20:43:28.000Z"
+  },
+  {
+    "id": "SG-0005",
+    "title": "A Potent Threat in Strait of Hormuz: Iran’s ‘Mosquito Fleet’",
+    "classification": "WATCH",
+    "source": "NYT",
+    "summary": "Although much of the regular Iranian navy is destroyed, the Islamic Revolutionary Guards Corps can still deploy small, speedy boats to disrupt shipping.",
+    "whyItMatters": "Live signal from NYT — requires review and classification by analyst.",
+    "confidence": 75,
+    "tags": [
+      "NYT",
+      "RSS",
+      "LIVE"
+    ],
+    "entities": [],
+    "systemImpact": [
+      "Monitoring"
+    ],
+    "engine": "INGEST",
+    "timestamp": "2026-04-18T14:40:27.000Z"
+  }
+]

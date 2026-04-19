@@ -199,6 +199,82 @@ export const useAnalyzeSignal = <
 };
 
 /**
+ * Fetches Reuters and NYT RSS feeds, converts items to signals, saves and returns them
+ * @summary Pull live signals from RSS feeds
+ */
+export const getIngestSignalsUrl = () => {
+  return `/api/ingest`;
+};
+
+export const ingestSignals = async (
+  options?: RequestInit,
+): Promise<Signal[]> => {
+  return customFetch<Signal[]>(getIngestSignalsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getIngestSignalsQueryKey = () => {
+  return [`/api/ingest`] as const;
+};
+
+export const getIngestSignalsQueryOptions = <
+  TData = Awaited<ReturnType<typeof ingestSignals>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof ingestSignals>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getIngestSignalsQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof ingestSignals>>> = ({
+    signal,
+  }) => ingestSignals({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof ingestSignals>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type IngestSignalsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof ingestSignals>>
+>;
+export type IngestSignalsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Pull live signals from RSS feeds
+ */
+
+export function useIngestSignals<
+  TData = Awaited<ReturnType<typeof ingestSignals>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof ingestSignals>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getIngestSignalsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
  * Returns all saved signals, newest first
  * @summary List all saved signals
  */

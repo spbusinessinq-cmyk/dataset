@@ -1,11 +1,14 @@
 import { Signal } from "@/lib/mock-data";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Database } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Database, Radio } from "lucide-react";
 
 interface RecentSignalsProps {
   signals: Signal[];
   isLoading?: boolean;
+  isPulling?: boolean;
+  onPullLive?: () => void;
 }
 
 function formatTimestamp(iso: string): string {
@@ -22,14 +25,27 @@ function formatTimestamp(iso: string): string {
   }
 }
 
-export default function RecentSignals({ signals, isLoading }: RecentSignalsProps) {
+export default function RecentSignals({ signals, isLoading, isPulling, onPullLive }: RecentSignalsProps) {
   return (
     <div className="glass-panel p-4 flex flex-col gap-4 h-full" data-testid="panel-recent-signals">
       <div className="flex items-center justify-between border-b border-card-border pb-2 mb-1">
         <h2 className="font-mono text-sm font-bold tracking-wide text-foreground">RECENT SIGNALS</h2>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {signals.length > 0 && (
             <span className="font-mono text-[10px] text-muted-foreground">{signals.length} RECORDS</span>
+          )}
+          {onPullLive && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-6 px-2 font-mono text-[10px] border-primary/40 bg-background hover:bg-primary/10 text-primary tracking-wider gap-1"
+              onClick={onPullLive}
+              disabled={isPulling || isLoading}
+              data-testid="btn-pull-live"
+            >
+              <Radio className={`w-3 h-3 ${isPulling ? "animate-pulse" : ""}`} />
+              {isPulling ? "PULLING..." : "PULL LIVE SIGNALS"}
+            </Button>
           )}
           <Database className="w-4 h-4 text-muted-foreground" />
         </div>

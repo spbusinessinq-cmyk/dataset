@@ -56,6 +56,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/Signal"
 
+  /ingest:
+    get:
+      operationId: ingestSignals
+      tags: [signals]
+      summary: Pull live signals from RSS feeds
+      description: Fetches Reuters and NYT RSS feeds, converts items to signals, saves and returns them
+      responses:
+        "200":
+          description: Ingested signals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Signal"
+
   /signals:
     get:
       operationId: listSignals

@@ -42,6 +42,26 @@ export const AnalyzeSignalResponse = zod.object({
 });
 
 /**
+ * Fetches Reuters and NYT RSS feeds, converts items to signals, saves and returns them
+ * @summary Pull live signals from RSS feeds
+ */
+export const IngestSignalsResponseItem = zod.object({
+  id: zod.string(),
+  title: zod.string(),
+  classification: zod.enum(["CRITICAL", "ELEVATED", "ROUTINE", "WATCH"]),
+  source: zod.string(),
+  summary: zod.string(),
+  whyItMatters: zod.string(),
+  confidence: zod.number(),
+  tags: zod.array(zod.string()),
+  entities: zod.array(zod.string()),
+  systemImpact: zod.array(zod.string()),
+  engine: zod.string(),
+  timestamp: zod.string(),
+});
+export const IngestSignalsResponse = zod.array(IngestSignalsResponseItem);
+
+/**
  * Returns all saved signals, newest first
  * @summary List all saved signals
  */

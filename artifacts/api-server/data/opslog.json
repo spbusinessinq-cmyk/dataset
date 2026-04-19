@@ -1,5 +1,17 @@
 [
   {
+    "id": "log-bcbe0a99",
+    "timestamp": "2026-04-19T07:08:22.321Z",
+    "message": "RSS ingest complete — 5 signals pulled (Reuters + NYT)",
+    "level": "info"
+  },
+  {
+    "id": "log-d69080c0",
+    "timestamp": "2026-04-19T07:08:22.198Z",
+    "message": "RSS ingest started — fetching Reuters and NYT feeds",
+    "level": "info"
+  },
+  {
     "id": "log-001",
     "timestamp": "2026-04-19T06:57:56.958Z",
     "message": "System self-check passed — all engines nominal",
