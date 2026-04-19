@@ -1,5 +1,89 @@
 [
   {
+    "id": "log-bd0ac3d9",
+    "timestamp": "2026-04-19T15:21:19.601Z",
+    "message": "Pull + Analyze complete — 0 analyzed and saved, 14 candidates queued",
+    "level": "info"
+  },
+  {
+    "id": "log-4ed3e486",
+    "timestamp": "2026-04-19T15:21:19.051Z",
+    "message": "Live ingest complete — 20 candidates returned (News, Social, Filing, Market, Contract)",
+    "level": "info"
+  },
+  {
+    "id": "log-54b55ecd",
+    "timestamp": "2026-04-19T15:21:18.386Z",
+    "message": "Pull + Analyze initiated — all active sources",
+    "level": "info"
+  },
+  {
+    "id": "log-f0b3721c",
+    "timestamp": "2026-04-19T15:21:18.380Z",
+    "message": "Full live ingest initiated — News, Social, Filings, Market, Contracts",
+    "level": "info"
+  },
+  {
+    "id": "log-3e9d28a7",
+    "timestamp": "2026-04-19T15:21:09.079Z",
+    "message": "Live pull complete — 20 candidates added to queue",
+    "level": "info"
+  },
+  {
+    "id": "log-d1146ed7",
+    "timestamp": "2026-04-19T15:21:08.943Z",
+    "message": "Live ingest complete — 20 candidates returned (News, Social, Filing, Market, Contract)",
+    "level": "info"
+  },
+  {
+    "id": "log-6adec737",
+    "timestamp": "2026-04-19T15:21:08.250Z",
+    "message": "Live pull initiated — fetching all active sources",
+    "level": "info"
+  },
+  {
+    "id": "log-8f9860e8",
+    "timestamp": "2026-04-19T15:21:08.243Z",
+    "message": "Full live ingest initiated — News, Social, Filings, Market, Contracts",
+    "level": "info"
+  },
+  {
+    "id": "log-b1f8d604",
+    "timestamp": "2026-04-19T15:20:43.339Z",
+    "message": "Export JSON — signal SG-0009",
+    "level": "info"
+  },
+  {
+    "id": "log-ed24033f",
+    "timestamp": "2026-04-19T15:20:38.015Z",
+    "message": "Queue item analyzed — SG-0009 — 90% — CRITICAL",
+    "level": "info"
+  },
+  {
+    "id": "log-6b2a9733",
+    "timestamp": "2026-04-19T15:20:29.021Z",
+    "message": "Pull + Analyze complete — 0 analyzed and saved, 14 candidates queued",
+    "level": "info"
+  },
+  {
+    "id": "log-97e45fba",
+    "timestamp": "2026-04-19T15:20:28.493Z",
+    "message": "Live ingest complete — 20 candidates returned (News, Social, Filing, Market, Contract)",
+    "level": "info"
+  },
+  {
+    "id": "log-0ff5432f",
+    "timestamp": "2026-04-19T15:20:27.804Z",
+    "message": "Pull + Analyze initiated — all active sources",
+    "level": "info"
+  },
+  {
+    "id": "log-126f02ce",
+    "timestamp": "2026-04-19T15:20:27.779Z",
+    "message": "Full live ingest initiated — News, Social, Filings, Market, Contracts",
+    "level": "info"
+  },
+  {
     "id": "log-c32aac14",
     "timestamp": "2026-04-19T08:02:30.554Z",
     "message": "Queue item analyzed — SG-0008 — 75% — ELEVATED",

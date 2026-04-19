@@ -1,5 +1,33 @@
 [
   {
+    "id": "SG-0009",
+    "title": "Iran War Live Updates: Trump Says U",
+    "classification": "CRITICAL",
+    "source": "NYT World",
+    "sourceType": "News",
+    "summary": "Iran War Live Updates: Trump Says U. Officials Will Travel to Pakistan for Talks.",
+    "whyItMatters": "Immediate operational concern requiring priority assessment. CONFLICT and IRAN dynamics are directly implicated.",
+    "confidence": 90,
+    "tags": [
+      "NEWS",
+      "CONFLICT",
+      "IRAN"
+    ],
+    "entities": [
+      "Iran",
+      "War",
+      "Live",
+      "Updates",
+      "Trump"
+    ],
+    "systemImpact": [
+      "National Security"
+    ],
+    "engine": "Intel Board",
+    "timestamp": "2026-04-19T15:20:37.876Z",
+    "status": "analyzed"
+  },
+  {
     "id": "SG-0008",
     "title": "Intelligence Signal Detected",
     "classification": "ELEVATED",

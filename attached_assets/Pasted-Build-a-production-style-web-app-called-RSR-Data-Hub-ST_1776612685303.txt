@@ -1,0 +1,113 @@
+Build a production-style web app called:
+
+RSR Data Hub
+
+STACK:
+- React + Vite frontend
+- Tailwind CSS
+- Single-page app first
+- Black-first command interface
+- Green used only as accent/highlight
+- Clean, sharp, tactical UI
+- No bloated startup design
+- No bright green wash
+- No generic SaaS look
+
+CORE GOAL:
+Build a simple but powerful intelligence/data hub inspired by the clarity of terminal monitoring tools like Glances, but with a modern black-and-green command aesthetic.
+
+DESIGN PHILOSOPHY:
+- Terminal-grade simplicity
+- High readability
+- Fast scanning
+- Dense but not cluttered
+- Tactical and premium
+- Feels like a real operator tool, not a concept mockup
+
+LAYOUT:
+Create a 3-column top section:
+
+1. LEFT PANEL — INGEST
+- input textarea for article / signal / raw text
+- source field
+- dropdown for source type:
+  - News
+  - Social
+  - Dataset
+  - Contract
+  - Manual
+- dropdown for engine:
+  - Sentrix
+  - AXION
+  - SAGE
+  - Intel Board
+- action button:
+  - Run Analysis
+
+2. CENTER PANEL — ANALYSIS
+- title
+- classification
+- summary
+- why it matters
+- confidence score
+- impact tags
+- extracted entities
+- system impact categories
+
+3. RIGHT PANEL — OUTPUT
+- buttons:
+  - Save Signal
+  - Generate Brief
+  - Publish to Site
+  - Export JSON
+- small product/output preview box
+- status indicator
+
+SECOND ROW:
+- Recent Signals table/list
+- Active Feeds / Datasets list
+- System Status strip
+- Ops Log / Activity feed
+
+STYLE REQUIREMENTS:
+- matte black / charcoal background
+- subtle grid or radar texture allowed
+- thin green borders and small glow only
+- white primary text
+- muted gray-green secondary text
+- rounded but sharp cards (not bubbly)
+- glass panels okay if restrained
+- use monospace for labels and metrics
+- use sans-serif for main content
+- no heavy animations
+- no charts yet unless very minimal
+
+FUNCTIONALITY:
+For v1, use mock data but structure everything so real backend wiring can be added later.
+
+Include:
+- mock analysis result after clicking Run Analysis
+- mock recent signals list
+- mock system status indicators
+- mock ops log
+
+DATA MODEL EXAMPLE:
+Each signal should support:
+- id
+- title
+- classification
+- source
+- summary
+- whyItMatters
+- confidence
+- tags
+- entities
+- engine
+- timestamp
+
+IMPORTANT:
+Build this as a serious operator interface, not a landing page.
+The app should feel like the control surface for a modular intelligence ecosystem.
+
+DELIVERABLE:
+Return the full React/Vite code for the first working version in a clean structure.
