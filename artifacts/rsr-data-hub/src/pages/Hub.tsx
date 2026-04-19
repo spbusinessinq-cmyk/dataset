@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   useAnalyzeSignal,
@@ -41,8 +41,10 @@ export default function Hub() {
   const [currentSignal, setCurrentSignal] = useState<Signal | null>(null);
   const [briefOpen, setBriefOpen] = useState(false);
 
-  // ── Intake queue (client-side staging area) ─────────────────────────────
+  // ── Intake queue ────────────────────────────────────────────────────────
   const [queuedSignals, setQueuedSignals] = useState<Signal[]>([]);
+  const [savedQueueIds, setSavedQueueIds] = useState<Set<string>>(new Set());
+  const [hasPulled, setHasPulled] = useState(false);
   const [isPulling, setIsPulling] = useState(false);
   const [lastPullTime, setLastPullTime] = useState<string | null>(null);
 
@@ -105,6 +107,11 @@ export default function Hub() {
             { onSuccess: () => queryClient.invalidateQueries({ queryKey: getListSignalsQueryKey() }) },
           );
           logAction(`${String(signal.engine).toUpperCase()} engine completed — ${signal.id} — ${signal.confidence}% — ${signal.classification}`);
+          toast({
+            title: "Analysis Complete",
+            description: `${signal.id} — ${signal.classification} at ${signal.confidence}%`,
+            className: "font-mono border-primary bg-background text-foreground",
+          });
         },
         onError: (err) => {
           toast({ title: "Analysis Failed", description: err?.message ?? "Backend unreachable", variant: "destructive", className: "font-mono" });
@@ -119,26 +126,25 @@ export default function Hub() {
 
   const handlePullLive = useCallback(async (selectedSources: string[]) => {
     setIsPulling(true);
-    toast({ title: "Live Pull Started", description: "Fetching from all active sources...", className: "font-mono" });
+    setHasPulled(true);
+    toast({ title: "Pull Started", description: "Fetching from active sources...", className: "font-mono" });
     logAction("Live pull initiated — fetching all active sources");
 
     try {
       const results = await ingestAll();
       const pulled = (results ?? []) as Signal[];
 
-      // Filter by selected source IDs if subset chosen
-      const filtered = pulled.filter((s) => {
-        const sourceMap: Record<string, string> = {
-          "reuters-world": "Reuters World",
-          "nyt-world": "NYT World",
-          "reddit-worldnews": "Reddit /r/WorldNews",
-          "sec-edgar": "SEC EDGAR",
-          "coindesk-btc": "Coindesk",
-          "usaspending": "USAspending.gov",
-        };
-        return selectedSources.some((id) => sourceMap[id] === s.source);
-      });
-
+      const sourceMap: Record<string, string> = {
+        "reuters-world": "Reuters World",
+        "nyt-world": "NYT World",
+        "reddit-worldnews": "Reddit /r/WorldNews",
+        "sec-edgar": "SEC EDGAR",
+        "coindesk-btc": "Coindesk",
+        "usaspending": "USAspending.gov",
+      };
+      const filtered = pulled.filter((s) =>
+        selectedSources.some((id) => sourceMap[id] === s.source)
+      );
       const toQueue = filtered.length > 0 ? filtered : pulled;
       addToQueue(toQueue);
       setLastPullTime(new Date().toISOString());
@@ -147,9 +153,10 @@ export default function Hub() {
       toast({
         title: "Pull Complete",
         description: `${toQueue.length} signal candidate${toQueue.length !== 1 ? "s" : ""} added to queue`,
-        className: "font-mono",
+        className: "font-mono border-primary bg-background text-foreground",
       });
-    } catch (err) {
+      logAction(`Live pull complete — ${toQueue.length} candidates added to queue`);
+    } catch {
       toast({ title: "Pull Failed", description: "Could not reach live sources", variant: "destructive", className: "font-mono" });
       logAction("Live pull failed — network or source error", "error");
     } finally {
@@ -162,6 +169,7 @@ export default function Hub() {
 
   const handlePullAndAnalyze = useCallback(async (selectedSources: string[]) => {
     setIsPulling(true);
+    setHasPulled(true);
     toast({ title: "Pull + Analyze Started", description: "Fetching and analyzing live signals...", className: "font-mono" });
     logAction("Pull + Analyze initiated — all active sources");
 
@@ -191,7 +199,6 @@ export default function Hub() {
 
       setLastPullTime(new Date().toISOString());
 
-      // Analyze top candidates sequentially to avoid overwhelming backend
       const analyzedResults: Signal[] = [];
       for (const candidate of toAnalyze) {
         try {
@@ -229,10 +236,10 @@ export default function Hub() {
       toast({
         title: "Pull + Analyze Complete",
         description: `${analyzedCount} analyzed, ${remaining.length} queued for review`,
-        className: "font-mono",
+        className: "font-mono border-primary bg-background text-foreground",
       });
       logAction(`Pull + Analyze complete — ${analyzedCount} analyzed and saved, ${remaining.length} candidates queued`);
-    } catch (err) {
+    } catch {
       toast({ title: "Pull + Analyze Failed", description: "Could not reach sources", variant: "destructive", className: "font-mono" });
       logAction("Pull + Analyze failed — network or source error", "error");
     } finally {
@@ -246,6 +253,7 @@ export default function Hub() {
   const handleFileIngest = useCallback(
     (content: string, fileName: string, fileType: "csv" | "json" | "txt", srcType: string) => {
       logAction(`File ingest started — ${fileName} (${fileType.toUpperCase()})`);
+      setHasPulled(true);
 
       ingestFileMutation.mutate(
         { data: { content, fileName, fileType, sourceType: srcType } },
@@ -257,7 +265,7 @@ export default function Hub() {
             toast({
               title: "File Parsed",
               description: `${candidates.length} candidate${candidates.length !== 1 ? "s" : ""} from ${fileName} added to queue`,
-              className: "font-mono",
+              className: "font-mono border-primary bg-background text-foreground",
             });
           },
           onError: () => {
@@ -304,6 +312,11 @@ export default function Hub() {
                 queryClient.invalidateQueries({ queryKey: getListSignalsQueryKey() });
                 removeFromQueue(signal.id);
                 logAction(`Queue item analyzed — ${analyzed.id} — ${analyzed.confidence}% — ${analyzed.classification}`);
+                toast({
+                  title: "Analysis Complete",
+                  description: `${analyzed.id} — ${analyzed.classification} at ${analyzed.confidence}%`,
+                  className: "font-mono border-primary bg-background text-foreground",
+                });
               },
             },
           );
@@ -328,19 +341,17 @@ export default function Hub() {
       {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: getListSignalsQueryKey() });
+          setSavedQueueIds((prev) => new Set([...prev, signal.id]));
           removeFromQueue(signal.id);
           logAction(`Signal saved from queue — ${toSave.id} — ${toSave.source}`);
-          toast({ title: "Signal Saved", description: `${toSave.id} archived`, className: "font-mono" });
+          toast({
+            title: "Signal Saved",
+            description: `${toSave.id} archived`,
+            className: "font-mono border-primary bg-background text-foreground",
+          });
         },
       },
     );
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const handleQueuePublish = useCallback((signal: Signal) => {
-    removeFromQueue(signal.id);
-    logAction(`Queue item dismissed — ${signal.id}`);
-    toast({ title: "Dismissed", description: `${signal.id} removed from queue`, className: "font-mono" });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -349,7 +360,11 @@ export default function Hub() {
     setSource(signal.source);
     if (signal.sourceType) setSourceType(signal.sourceType);
     removeFromQueue(signal.id);
-    toast({ title: "Signal Loaded", description: "Paste area populated — ready to run analysis", className: "font-mono" });
+    toast({
+      title: "Signal Loaded",
+      description: "Paste area populated — ready to run analysis",
+      className: "font-mono border-primary bg-background text-foreground",
+    });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -357,7 +372,11 @@ export default function Hub() {
 
   const handleSignalSelect = useCallback((signal: Signal) => {
     setCurrentSignal(signal);
-    toast({ title: "Signal Loaded", description: `${signal.id} loaded into analysis panel`, className: "font-mono" });
+    toast({
+      title: "Signal Loaded",
+      description: `${signal.id} loaded into analysis panel`,
+      className: "font-mono border-primary bg-background text-foreground",
+    });
   }, [toast]);
 
   const isProcessing = analyzeSignalHook.isPending;
@@ -384,7 +403,7 @@ export default function Hub() {
           onPullAndAnalyze={handlePullAndAnalyze}
           onFileIngest={handleFileIngest}
         />
-        <AnalysisPanel signal={currentSignal} isProcessing={isProcessing} />
+        <AnalysisPanel signal={currentSignal} isProcessing={isProcessing} engine={engine} />
         <OutputPanel
           signal={currentSignal}
           isProcessing={isProcessing}
@@ -392,14 +411,14 @@ export default function Hub() {
         />
       </div>
 
-      {/* ── Intake Queue (shows when populated) ──────────────────────────── */}
-      {queuedSignals.length > 0 && (
+      {/* ── Intake Queue (always visible after first pull/ingest) ─────────── */}
+      {hasPulled && (
         <IntakeQueue
           items={queuedSignals}
           isAnalyzing={isProcessing}
+          savedIds={savedQueueIds}
           onAnalyze={handleQueueAnalyze}
           onSave={handleQueueSave}
-          onPublish={handleQueuePublish}
           onLoad={handleQueueLoad}
           onDismiss={removeFromQueue}
         />

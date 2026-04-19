@@ -39,7 +39,7 @@ export default function OutputPanel({ signal, isProcessing, onGenerateBrief }: O
           queryClient.invalidateQueries({ queryKey: getListSignalsQueryKey() });
           toast({
             title: "Signal Saved",
-            description: `${signal.id} saved to archive`,
+            description: `${signal.id} archived successfully`,
             className: "font-mono border-primary bg-background text-foreground",
           });
         },
@@ -62,7 +62,7 @@ export default function OutputPanel({ signal, isProcessing, onGenerateBrief }: O
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${signal.id}-${Date.now()}.json`;
+    a.download = `rsr-signal-${signal.id}.json`;
     a.click();
     URL.revokeObjectURL(url);
     appendLog.mutate(
@@ -70,8 +70,8 @@ export default function OutputPanel({ signal, isProcessing, onGenerateBrief }: O
       { onSuccess: () => queryClient.invalidateQueries({ queryKey: getListOpsLogQueryKey() }) },
     );
     toast({
-      title: "Export Ready",
-      description: `${signal.id}.json downloaded`,
+      title: "Export Complete",
+      description: `rsr-signal-${signal.id}.json downloaded`,
       className: "font-mono border-primary bg-background text-foreground",
     });
   };
@@ -99,7 +99,7 @@ export default function OutputPanel({ signal, isProcessing, onGenerateBrief }: O
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${signal.id}-${Date.now()}.csv`;
+    a.download = `rsr-signal-${signal.id}.csv`;
     a.click();
     URL.revokeObjectURL(url);
     appendLog.mutate(
@@ -107,8 +107,8 @@ export default function OutputPanel({ signal, isProcessing, onGenerateBrief }: O
       { onSuccess: () => queryClient.invalidateQueries({ queryKey: getListOpsLogQueryKey() }) },
     );
     toast({
-      title: "CSV Ready",
-      description: `${signal.id}.csv downloaded`,
+      title: "Export Complete",
+      description: `rsr-signal-${signal.id}.csv downloaded`,
       className: "font-mono border-primary bg-background text-foreground",
     });
   };
@@ -117,17 +117,21 @@ export default function OutputPanel({ signal, isProcessing, onGenerateBrief }: O
 
   return (
     <div className="glass-panel p-4 flex flex-col gap-4" data-testid="panel-output">
+      {/* Header */}
       <div className="flex items-center justify-between border-b border-card-border pb-2 mb-2">
         <h2 className="font-mono text-sm font-bold tracking-wide text-foreground">EXPORT & PUBLISH</h2>
         <div className="flex items-center gap-2">
-          <div className={`w-2 h-2 rounded-full ${signal ? "bg-primary" : isProcessing ? "bg-amber-500 animate-pulse" : "bg-muted-foreground"}`}></div>
+          <div className={`w-2 h-2 rounded-full ${
+            signal ? "bg-primary" : isProcessing ? "bg-amber-500 animate-pulse" : "bg-muted-foreground/40"
+          }`} />
           <span className="font-mono text-[10px] text-muted-foreground" data-testid="status-output">
             {signal ? "SIGNAL READY" : isProcessing ? "PROCESSING..." : "AWAITING OUTPUT"}
           </span>
         </div>
       </div>
 
-      <div className="flex flex-col gap-3">
+      {/* Action buttons */}
+      <div className="flex flex-col gap-2.5">
         <Button
           variant="outline"
           className="w-full justify-start font-mono text-xs border-primary/40 bg-background hover:bg-primary/10 text-foreground h-10 transition-all"
@@ -135,7 +139,7 @@ export default function OutputPanel({ signal, isProcessing, onGenerateBrief }: O
           onClick={handleSave}
           data-testid="btn-save"
         >
-          <Save className="w-4 h-4 mr-2 text-primary" />
+          <Save className="w-4 h-4 mr-2 text-primary shrink-0" />
           {saveSignal.isPending ? "SAVING..." : "SAVE SIGNAL"}
         </Button>
 
@@ -146,34 +150,37 @@ export default function OutputPanel({ signal, isProcessing, onGenerateBrief }: O
           onClick={onGenerateBrief}
           data-testid="btn-generate-brief"
         >
-          <FileText className="w-4 h-4 mr-2 text-primary" />
+          <FileText className="w-4 h-4 mr-2 text-primary shrink-0" />
           GENERATE BRIEF
         </Button>
 
-        <Button
-          variant="ghost"
-          className="w-full justify-start font-mono text-xs text-muted-foreground hover:text-foreground hover:bg-secondary h-10 border border-card-border border-dashed transition-all"
-          disabled={!signal || isProcessing}
-          onClick={handleExportJson}
-          data-testid="btn-export-json"
-        >
-          <Download className="w-4 h-4 mr-2" />
-          EXPORT JSON
-        </Button>
+        <div className="border-t border-card-border/40 pt-2 flex flex-col gap-2">
+          <Button
+            variant="ghost"
+            className="w-full justify-start font-mono text-xs text-muted-foreground hover:text-foreground hover:bg-secondary h-9 border border-card-border border-dashed transition-all"
+            disabled={!signal || isProcessing}
+            onClick={handleExportJson}
+            data-testid="btn-export-json"
+          >
+            <Download className="w-3.5 h-3.5 mr-2 shrink-0" />
+            EXPORT JSON
+          </Button>
 
-        <Button
-          variant="ghost"
-          className="w-full justify-start font-mono text-xs text-muted-foreground hover:text-foreground hover:bg-secondary h-10 border border-card-border border-dashed transition-all"
-          disabled={!signal || isProcessing}
-          onClick={handleExportCsv}
-          data-testid="btn-export-csv"
-        >
-          <Table2 className="w-4 h-4 mr-2" />
-          EXPORT CSV
-        </Button>
+          <Button
+            variant="ghost"
+            className="w-full justify-start font-mono text-xs text-muted-foreground hover:text-foreground hover:bg-secondary h-9 border border-card-border border-dashed transition-all"
+            disabled={!signal || isProcessing}
+            onClick={handleExportCsv}
+            data-testid="btn-export-csv"
+          >
+            <Table2 className="w-3.5 h-3.5 mr-2 shrink-0" />
+            EXPORT CSV
+          </Button>
+        </div>
       </div>
 
-      <div className="mt-auto pt-4 flex flex-col gap-2">
+      {/* Signal preview */}
+      <div className="mt-auto pt-3 flex flex-col gap-2">
         <h4 className="font-mono text-[10px] text-muted-foreground tracking-widest">SIGNAL PREVIEW</h4>
         <div className="bg-background border border-card-border rounded-md p-3 min-h-[80px] flex flex-col justify-center">
           {signal ? (
@@ -182,15 +189,32 @@ export default function OutputPanel({ signal, isProcessing, onGenerateBrief }: O
                 <span className="font-mono text-[10px] text-primary">{signal.id}</span>
                 <span className="font-mono text-[9px] text-muted-foreground">{formatTimestamp(signal.timestamp)}</span>
               </div>
-              <p className="font-sans text-xs text-foreground font-medium line-clamp-2">{signal.title}</p>
-              <span className={`font-mono text-[9px] self-start ${
-                signal.classification === "CRITICAL" ? "text-destructive" :
-                signal.classification === "ELEVATED" ? "text-amber-500" :
-                "text-primary"
-              }`}>{signal.classification}</span>
+              <p className="font-sans text-xs text-foreground font-medium line-clamp-2 leading-snug">
+                {signal.title}
+              </p>
+              <div className="flex items-center gap-2">
+                <span className={`font-mono text-[9px] ${
+                  signal.classification === "CRITICAL" ? "text-destructive" :
+                  signal.classification === "ELEVATED" ? "text-amber-500" :
+                  "text-primary"
+                }`}>
+                  {signal.classification}
+                </span>
+                <span className="text-muted-foreground/30">·</span>
+                <span className="font-mono text-[9px] text-muted-foreground">{signal.confidence}%</span>
+                {signal.sourceType && (
+                  <>
+                    <span className="text-muted-foreground/30">·</span>
+                    <span className="font-mono text-[9px] text-muted-foreground">{signal.sourceType}</span>
+                  </>
+                )}
+              </div>
             </div>
           ) : (
-            <span className="font-mono text-xs text-muted-foreground/50 text-center">[NO SIGNAL]</span>
+            <div className="flex flex-col items-center gap-1 text-center">
+              <span className="font-mono text-xs text-muted-foreground/40">[NO SIGNAL]</span>
+              <span className="font-mono text-[9px] text-muted-foreground/30">Analyze a signal to enable export</span>
+            </div>
           )}
         </div>
       </div>

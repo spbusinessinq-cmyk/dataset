@@ -1,5 +1,59 @@
 [
   {
+    "id": "SG-0008",
+    "title": "Intelligence Signal Detected",
+    "classification": "ELEVATED",
+    "source": "NYT World",
+    "sourceType": "News",
+    "summary": "Officials Visited Havana to Lay Out Proposals for Cuban Reforms. The delegation told Cuba’s leadership that it had only a narrow window of time to make the economic and political changes demanded by the Trump administration.",
+    "whyItMatters": "Developing situation with meaningful downstream risk. Track escalation vectors in this domain.",
+    "confidence": 75,
+    "tags": [
+      "NEWS"
+    ],
+    "entities": [
+      "Officials",
+      "Visited",
+      "Havana",
+      "Lay",
+      "Out"
+    ],
+    "systemImpact": [
+      "General Intelligence"
+    ],
+    "engine": "AXION",
+    "timestamp": "2026-04-19T08:02:30.420Z",
+    "status": "analyzed"
+  },
+  {
+    "id": "SG-0007",
+    "title": "Iran War Live Updates: Iran Declares Strait of Hormuz",
+    "classification": "CRITICAL",
+    "source": "NYT World",
+    "sourceType": "News",
+    "summary": "Iran War Live Updates: Iran Declares Strait of Hormuz Closed Again as Ships Report Attacks. Iran reversed course on reopening the strategic waterway, warning it would continue to block transit as long as the U.",
+    "whyItMatters": "Immediate operational concern requiring priority assessment. CONFLICT and IRAN dynamics are directly implicated.",
+    "confidence": 86,
+    "tags": [
+      "NEWS",
+      "CONFLICT",
+      "IRAN"
+    ],
+    "entities": [
+      "Iran",
+      "War",
+      "Live",
+      "Updates",
+      "Declares"
+    ],
+    "systemImpact": [
+      "National Security"
+    ],
+    "engine": "AXION",
+    "timestamp": "2026-04-19T08:02:22.909Z",
+    "status": "analyzed"
+  },
+  {
     "id": "SG-0006",
     "title": "Kyiv Mass Shooting Kills 6 and Gunman Is Shot",
     "classification": "CRITICAL",

@@ -1,0 +1,224 @@
+FINAL POLISH PASS — FINISH RSR DATA HUB FOR LAUNCH
+
+IMPORTANT:
+Do NOT redesign the product.
+Do NOT add major new systems.
+Do NOT add auth, billing, cloud DB, or background automation.
+This pass is only to FINISH and POLISH the app so it feels complete and launch-ready.
+
+MISSION:
+RSR Data Hub already works.
+Now make it feel finished, stable, and production-ready for self-hosted launch.
+
+GOAL:
+Improve UX, clarity, and reliability without changing the core architecture.
+
+==================================================
+1. CLEAN STATE HANDLING
+==================================================
+
+Add proper UI states everywhere:
+
+A. Intake Queue
+- Empty state:
+  "No live signals loaded yet. Pull signals to begin."
+- Loading state while pulling
+- Error state if pull fails
+- Show count clearly
+
+B. Analysis Panel
+- Empty state:
+  "Select or analyze a signal to begin."
+- Loading state while analyzing
+- Error state if analysis fails
+- Keep prior result visible until new result succeeds, if possible
+
+C. Archive
+- Empty state if no saved signals
+- Loading state on app load
+
+D. Brief Modal
+- Empty state if no signal selected
+- Copy-to-clipboard button with toast
+
+==================================================
+2. ANALYSIS PANEL UPGRADE
+==================================================
+
+Make the center analysis panel feel complete and readable.
+
+Requirements:
+- stronger typography hierarchy
+- clear sections:
+  - classification + confidence
+  - summary
+  - why it matters
+  - impact tags
+  - extracted entities
+  - system impact
+- show source + sourceType + timestamp cleanly
+- show priority score if available
+
+Keep style black-first and tactical.
+
+==================================================
+3. INTAKE QUEUE QUALITY
+==================================================
+
+Improve each queue card.
+
+Each item should clearly show:
+- title
+- source
+- sourceType badge
+- timestamp
+- confidence if analyzed
+- classification if analyzed
+- snippet/summary
+
+Actions:
+- Analyze
+- Load
+- Save
+
+If already analyzed or saved, reflect that visually.
+If already saved, disable duplicate save or show “Saved”.
+
+Make queue cards easier to scan.
+
+==================================================
+4. ARCHIVE TABLE POLISH
+==================================================
+
+Upgrade the archive table / signal archive so it feels finished.
+
+Requirements:
+- clear column labels
+- sourceType visible
+- classification badge
+- confidence
+- engine
+- timestamp
+- row hover state
+- clicking row loads signal into analysis panel
+- add simple client-side filtering if easy:
+  - All
+  - Critical / High / Watch / Normal
+  - by sourceType
+
+Do not overbuild. Keep it simple.
+
+==================================================
+5. SYSTEM STATUS STRIP
+==================================================
+
+Make the status area feel intentional.
+
+Show:
+- API status
+- Ollama status
+- Saved signals count
+- Queue depth
+- Last pull time
+
+Use compact pills or status rows.
+Color-code health states.
+
+==================================================
+6. BRIEF GENERATION POLISH
+==================================================
+
+Make “Generate Brief” feel real and useful.
+
+Requirements:
+- open clean modal / panel
+- formatted sections:
+  - Headline
+  - Executive Summary
+  - Key Signals
+  - Why It Matters
+  - Operator Takeaway
+- add:
+  - Copy Brief
+  - Close
+- brief should be readable and presentation-ready
+
+==================================================
+7. TOASTS / FEEDBACK
+==================================================
+
+Add clean toast notifications for:
+- pull started
+- pull complete
+- analysis complete
+- signal saved
+- brief copied
+- export complete
+- error states
+
+Keep subtle and tactical.
+
+==================================================
+8. EXPORT CLEANUP
+==================================================
+
+Ensure export JSON and CSV work cleanly.
+
+Requirements:
+- meaningful filenames
+Example:
+  rsr-signal-SG-0008.json
+  rsr-signal-SG-0008.csv
+
+- export selected signal only
+- disable buttons if no signal selected
+
+==================================================
+9. SMALL UI FIXES
+==================================================
+
+Do a focused polish sweep:
+- alignment issues
+- button spacing
+- over-glow reduction
+- improve padding
+- consistent border radii
+- consistent label spacing
+- no clipped text
+- no awkward empty gaps
+
+Keep current design direction.
+
+==================================================
+10. DOCKER READINESS CHECK
+==================================================
+
+Verify and clean Docker setup.
+
+Deliver:
+- confirm Dockerfile works
+- confirm docker-compose works
+- ensure data directory persists
+- ensure env vars documented
+- ensure production startup command is correct
+
+Add a concise README section:
+- local dev
+- docker build
+- docker compose up
+- optional Ollama profile
+
+==================================================
+11. FINAL DELIVERABLE
+==================================================
+
+Return:
+- updated project structure
+- all changed code
+- exact run commands
+- note what was polished
+- note any remaining non-blocking limitations
+
+IMPORTANT:
+This pass should make the product feel complete, not bigger.
+We are finishing the app, not reinventing it.
